@@ -1,0 +1,232 @@
+/**
+ * firestore.js — acceso a datos (Sección C, J, K).
+ * En MODO DEMO delega en demoStore (localStorage); en producción usa Firestore.
+ * Reglas clave:
+ *  - Cada respuesta se escribe con ID = id_interno oficial (P001..P204):
+ *    reintentar SOBRESCRIBE, nunca duplica.
+ *  - La llave se otorga por EXISTENCIA de documentos de respuesta del bloque,
+ *    nunca por su contenido.
+ *  - pausa_juli y soporte viven en subcolecciones aparte de /respuestas.
+ */
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+  arrayUnion,
+  runTransaction,
+} from "firebase/firestore";
+import { db } from "../firebase.js";
+import { MODO_DEMO } from "../firebaseConfig.js";
+import * as demo from "./demoStore.js";
+
+/** Asigna el siguiente número Haptiqueño con una transacción sobre un contador. */
+async function siguienteHaptiqueno() {
+  const ref = doc(db, "contadores", "haptiquenos");
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const actual = snap.exists() ? snap.data().ultimo || 0 : 0;
+    const nuevo = actual + 1;
+    tx.set(ref, { ultimo: nuevo }, { merge: true });
+    return nuevo;
+  });
+}
+
+/* ------------------------------------------------------------------ usuario */
+
+export async function ensureUsuario(user) {
+  if (MODO_DEMO) return demo.ensureUsuario(user);
+  const ref = doc(db, "usuarios", user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    let haptiqueno = null;
+    try {
+      haptiqueno = await siguienteHaptiqueno();
+    } catch (_) {
+      // Si el contador falla, el usuario se crea igual; Juli puede asignarlo luego.
+    }
+    const nuevo = {
+      correo: user.email || "",
+      haptiqueno,
+      tipo_vinculacion: null,
+      fecha_creacion: serverTimestamp(),
+      consentimiento: { estado: "no_iniciado", fecha: null },
+      progreso: {
+        paso_actual: 1,
+        bloque_actual: null,
+        llaves_obtenidas: [],
+        estado: "activo",
+        bloqueado_tecnico: false,
+        fecha_fin: null,
+      },
+    };
+    await setDoc(ref, nuevo);
+    return nuevo;
+  }
+  return snap.data();
+}
+
+export async function getUsuario(uid) {
+  if (MODO_DEMO) return demo.getUsuario(uid);
+  const snap = await getDoc(doc(db, "usuarios", uid));
+  return snap.exists() ? snap.data() : null;
+}
+
+export async function setTipoVinculacion(uid, tipo) {
+  if (MODO_DEMO) return demo.setTipoVinculacion(uid, tipo);
+  await updateDoc(doc(db, "usuarios", uid), { tipo_vinculacion: tipo });
+}
+
+export async function setConsentimiento(uid, estado) {
+  if (MODO_DEMO) return demo.setConsentimiento(uid, estado);
+  await updateDoc(doc(db, "usuarios", uid), {
+    consentimiento: { estado, fecha: serverTimestamp() },
+  });
+}
+
+/** Guarda (merge) el estado del mini-mundo de Colombia dentro del doc de usuario. */
+export async function setJuegoColombia(uid, patch) {
+  if (MODO_DEMO) return demo.setJuegoColombia(uid, patch);
+  const plano = Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [`juego_colombia.${k}`, v])
+  );
+  await updateDoc(doc(db, "usuarios", uid), plano);
+}
+
+/** Guarda (merge) el estado del mini-mundo de México dentro del doc de usuario. */
+export async function setJuegoMexico(uid, patch) {
+  if (MODO_DEMO) return demo.setJuegoMexico(uid, patch);
+  const plano = Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [`juego_mexico.${k}`, v])
+  );
+  await updateDoc(doc(db, "usuarios", uid), plano);
+}
+
+/** Guarda (merge) el estado del mini-mundo de Chile dentro del doc de usuario. */
+export async function setJuegoChile(uid, patch) {
+  if (MODO_DEMO) return demo.setJuegoChile(uid, patch);
+  const plano = Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [`juego_chile.${k}`, v])
+  );
+  await updateDoc(doc(db, "usuarios", uid), plano);
+}
+
+/** Guarda (merge) el estado del Regreso a Colombia (circuito final). */
+export async function setJuegoRegreso(uid, patch) {
+  if (MODO_DEMO) return demo.setJuegoRegreso(uid, patch);
+  const plano = Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [`juego_regreso.${k}`, v])
+  );
+  await updateDoc(doc(db, "usuarios", uid), plano);
+}
+
+/* ----------------------------------------------------------------- progreso */
+
+export async function setPaso(uid, pasoActual, bloqueActual) {
+  if (MODO_DEMO) return demo.setPaso(uid, pasoActual, bloqueActual);
+  const patch = { "progreso.paso_actual": pasoActual };
+  if (bloqueActual !== undefined) patch["progreso.bloque_actual"] = bloqueActual;
+  await updateDoc(doc(db, "usuarios", uid), patch);
+}
+
+export async function setBloqueadoTecnico(uid, valor) {
+  if (MODO_DEMO) return demo.setBloqueadoTecnico(uid, valor);
+  await updateDoc(doc(db, "usuarios", uid), { "progreso.bloqueado_tecnico": valor });
+}
+
+export async function marcarCompletado(uid) {
+  if (MODO_DEMO) return demo.marcarCompletado(uid);
+  await updateDoc(doc(db, "usuarios", uid), {
+    "progreso.estado": "completado",
+    "progreso.fecha_fin": serverTimestamp(),
+  });
+}
+
+/* --------------------------------------------------------------- respuestas */
+
+export async function guardarRespuesta(uid, pregunta, opcionSeleccionada, meta = {}) {
+  if (MODO_DEMO) return demo.guardarRespuesta(uid, pregunta, opcionSeleccionada, meta);
+  const ref = doc(db, "usuarios", uid, "respuestas", pregunta.id);
+  await setDoc(ref, {
+    numero_oficial: pregunta.numero_oficial,
+    instrumento: pregunta.instrumento,
+    opcion_seleccionada: opcionSeleccionada,
+    fecha_hora: serverTimestamp(),
+    ...(meta.actividad ? { actividad_narrativa: meta.actividad } : {}),
+    ...(meta.etapa ? { etapa: meta.etapa } : {}),
+  });
+}
+
+export async function getRespuestasIds(uid) {
+  if (MODO_DEMO) return demo.getRespuestasIds(uid);
+  const snap = await getDocs(collection(db, "usuarios", uid, "respuestas"));
+  return new Set(snap.docs.map((d) => d.id));
+}
+
+export async function otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave) {
+  if (MODO_DEMO) return demo.otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave);
+  const existentes = await getRespuestasIds(uid);
+  const completo = idsBloque.every((id) => existentes.has(id));
+  if (!completo) return false;
+  await updateDoc(doc(db, "usuarios", uid), {
+    "progreso.llaves_obtenidas": arrayUnion(llave),
+  });
+  return true;
+}
+
+/* ------------------------------------------------------------- pausa / soporte */
+
+export async function guardarPausaJuli(uid, comentario) {
+  if (MODO_DEMO) return demo.guardarPausaJuli(uid, comentario);
+  await addDoc(collection(db, "usuarios", uid, "pausa_juli"), {
+    comentario: comentario && comentario.trim() ? comentario.trim() : null,
+    fecha: serverTimestamp(),
+  });
+}
+
+export async function crearSoporte(uid, mensaje, pasoActual) {
+  if (MODO_DEMO) return demo.crearSoporte(uid, mensaje, pasoActual);
+  await addDoc(collection(db, "usuarios", uid, "soporte"), {
+    mensaje: mensaje && mensaje.trim() ? mensaje.trim() : null,
+    paso_actual: pasoActual,
+    fecha: serverTimestamp(),
+    estado: "abierto",
+  });
+}
+
+/* -------------------------------------------------------------------- Juli */
+
+export async function listarUsuarios() {
+  if (MODO_DEMO) return demo.listarUsuarios();
+  const snap = await getDocs(collection(db, "usuarios"));
+  return snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
+}
+
+export async function listarSoporte(uid) {
+  if (MODO_DEMO) return demo.listarSoporte(uid);
+  const snap = await getDocs(collection(db, "usuarios", uid, "soporte"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function resolverBloqueoTecnico(uid) {
+  if (MODO_DEMO) return demo.resolverBloqueoTecnico(uid);
+  await updateDoc(doc(db, "usuarios", uid), { "progreso.bloqueado_tecnico": false });
+  const tickets = await getDocs(collection(db, "usuarios", uid, "soporte"));
+  await Promise.all(
+    tickets.docs
+      .filter((d) => d.data().estado === "abierto")
+      .map((d) =>
+        updateDoc(doc(db, "usuarios", uid, "soporte", d.id), { estado: "resuelto" })
+      )
+  );
+}
+
+export async function getRespuestasUsuario(uid) {
+  if (MODO_DEMO) return demo.getRespuestasUsuario(uid);
+  const snap = await getDocs(collection(db, "usuarios", uid, "respuestas"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}

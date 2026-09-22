@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Credenciales / secretos — NUNCA subir al repo
+serviceAccountKey.json
+.env
+.env.local
+
+# Sistema
+.DS_Store
+Thumbs.db

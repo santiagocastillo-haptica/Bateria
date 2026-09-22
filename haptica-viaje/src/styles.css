@@ -1,0 +1,741 @@
+/* =====================================================================
+   Travesía Háptica — identidad visual de marca
+   Fuente única de verdad de tokens: brief de marca Háptica (Pantone 172 C).
+   ===================================================================== */
+:root {
+  /* ---------- Color de marca ---------- */
+  --naranja-haptica: #FA4616; /* Pantone 172 C — primario, dominante */
+  --verde-petroleo:  #006663;
+  --menta:           #00BCA0; /* acento */
+  --blanco:          #FFFFFF;
+  --negro-tinta:     #0D1B1D;
+  --arena:           #FBE3B0; /* usar con cautela */
+  --ambar:           #E5A000; /* usar con cautela */
+
+  /* Neutros */
+  --gris-100: #F4F4F2;
+  --gris-200: #E6E6E3;
+  --gris-400: #B7BCBC;
+  --gris-600: #6E7677;
+
+  /* Tintes derivados (hover/press) */
+  --naranja-600: oklch(from #FA4616 calc(l - 0.06) c h);
+  --naranja-700: oklch(from #FA4616 calc(l - 0.12) c h);
+  --naranja-100: oklch(from #FA4616 0.95 calc(c * 0.18) h);
+  --menta-600:   oklch(from #00BCA0 calc(l - 0.06) c h);
+
+  /* ---------- Tipografía ---------- */
+  --font-brand: "Gotham", "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --fs-hero: 120px;
+  --fs-display: 72px;
+  --fs-h1: 48px;
+  --fs-h2: 34px;
+  --fs-h3: 26px;
+  --fs-lead: 22px;
+  --fs-body: 17px;
+  --fs-small: 14px;
+  --fs-label: 12px;
+
+  /* ---------- Espaciado (base 4px) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* ---------- Forma / efectos ---------- */
+  --radius-0: 0px;
+  --radius-md: 8px; /* SOLO inputs de texto y diálogos/modal */
+  --shadow-soft: 0 2px 8px rgb(0 50 55 / .08);
+  --shadow-raised: 0 8px 24px rgb(0 50 55 / .12);
+  --ease-contacto: cubic-bezier(.22, .61, .36, 1);
+  --dur-fast: 160ms;
+  --dur-screen: 420ms;
+
+  /* ---------- Alias funcionales (compatibilidad interna) ---------- */
+  --fondo: var(--gris-100);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; margin: 0; }
+
+body {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  color: var(--negro-tinta);
+  background: var(--gris-100);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Pantalla centrada genérica ---------- */
+.pantalla {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--space-4) var(--space-9);
+  text-align: center;
+}
+
+.tarjeta {
+  background: var(--blanco);
+  border-radius: var(--radius-0);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-6) var(--space-5);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  transition: box-shadow var(--dur-fast) var(--ease-contacto);
+}
+
+h1 {
+  font-size: clamp(28px, 6vw, var(--fs-h1));
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-3);
+}
+h2 {
+  font-size: clamp(22px, 4.5vw, var(--fs-h2));
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-3);
+}
+p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); font-weight: 400; }
+.sub { color: var(--gris-600); }
+
+/* ---------- Riel de cierre ---------- */
+.riel-cierre {
+  width: 96px;
+  height: 4px;
+  background: var(--naranja-haptica);
+  margin: var(--space-2) auto var(--space-4);
+  border-radius: var(--radius-0);
+}
+.riel-cierre.centrado-izq { margin-left: 0; }
+
+/* ---------- Botones ---------- */
+.btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-brand);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-0);
+  transition: transform 120ms var(--ease-contacto), background 160ms var(--ease-contacto), opacity 160ms var(--ease-contacto), box-shadow 160ms var(--ease-contacto);
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primario { background: var(--naranja-haptica); color: var(--blanco); }
+.btn-primario:hover:not(:disabled) { background: var(--naranja-600); }
+.btn-primario:active:not(:disabled) { background: var(--naranja-700); }
+
+.btn-secundario {
+  background: var(--verde-petroleo);
+  color: var(--blanco);
+  border: none;
+}
+.btn-secundario:hover:not(:disabled) { background: var(--negro-tinta); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--naranja-haptica);
+  border: 1.5px solid var(--naranja-haptica);
+}
+.btn-outline:hover:not(:disabled) { background: var(--naranja-100); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--negro-tinta);
+  border: 1.5px solid var(--gris-400);
+}
+.btn-ghost:hover:not(:disabled) { border-color: var(--negro-tinta); }
+
+.btn-inverse {
+  background: var(--blanco);
+  color: var(--negro-tinta);
+  border: none;
+}
+.btn-inverse:hover:not(:disabled) { background: var(--gris-200); }
+
+.btn-fila { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; margin-top: var(--space-5); }
+
+/* ---------- Escena / placeholder visual ---------- */
+.escena {
+  width: 100%;
+  border-radius: var(--radius-0);
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.escena .label-escena { font-weight: 700; font-size: var(--fs-lead); }
+.escena .pais-chip {
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  opacity: 0.9;
+  font-weight: 700;
+}
+.escena-personajes { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; margin-top: var(--space-2); }
+.chip-persona { font-size: var(--fs-small); font-weight: 700; padding: var(--space-1) var(--space-3); border-radius: var(--radius-0); }
+.companeros { display: flex; align-items: center; gap: var(--space-1); font-size: var(--fs-small); margin-top: var(--space-1); }
+.companeros .huella { font-size: 1.1rem; }
+.botas { opacity: 0.9; font-size: var(--fs-label); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+
+/* ---------- Pregunta ---------- */
+.pregunta-texto { font-size: var(--fs-lead); font-weight: 700; margin: var(--space-2) 0 4px; text-align: left; }
+.pregunta-meta { font-size: var(--fs-small); color: var(--gris-600); text-align: left; margin-bottom: var(--space-4); }
+.instrumento-pie { font-size: var(--fs-label); color: var(--gris-400); text-align: center; margin-top: var(--space-4); }
+.raw-hint {
+  font-size: var(--fs-small); color: var(--gris-600); text-align: left;
+  background: var(--gris-100); border-radius: var(--radius-0); padding: var(--space-2) var(--space-3); margin: var(--space-2) 0 var(--space-4);
+}
+
+.opciones { display: flex; flex-direction: column; gap: var(--space-2); text-align: left; }
+.opcion {
+  display: flex; align-items: center; gap: var(--space-3);
+  border: 1.5px solid var(--gris-200);
+  border-radius: var(--radius-0);
+  padding: var(--space-4);
+  cursor: pointer;
+  transition: border-color 160ms var(--ease-contacto), background 160ms var(--ease-contacto);
+}
+.opcion:hover { border-color: var(--naranja-haptica); }
+.opcion.sel { border-color: var(--naranja-haptica); background: var(--naranja-100); }
+.opcion input { accent-color: var(--naranja-haptica); width: 18px; height: 18px; }
+
+.campo {
+  width: 100%; font-size: var(--fs-body); padding: var(--space-4);
+  border: 1.5px solid var(--gris-200); border-radius: var(--radius-md); margin-top: var(--space-1);
+  font-family: var(--font-brand); color: var(--negro-tinta);
+}
+.campo:focus { outline: none; border-color: var(--naranja-haptica); }
+.campo-fila { display: flex; flex-direction: column; gap: var(--space-3); text-align: left; }
+
+/* ---------- Mundo / puerta / misterio ---------- */
+.mundo-cabecera {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-3); font-weight: 800;
+}
+.mundo-pais { letter-spacing: 0.04em; }
+.mundo-llaves {
+  background: var(--naranja-100); color: var(--naranja-700);
+  padding: 4px var(--space-3); border-radius: var(--radius-0); font-size: var(--fs-small);
+}
+.mundo-haptiqueno {
+  display: inline-block; background: var(--naranja-haptica); color: var(--blanco);
+  font-weight: 800; padding: 6px var(--space-4); border-radius: var(--radius-0); margin: var(--space-2) 0 var(--space-4);
+}
+.puerta-cerrada, .puerta-abierta {
+  font-weight: 800; font-size: var(--fs-lead); padding: var(--space-3); border-radius: var(--radius-0); margin: var(--space-3) 0;
+}
+.puerta-cerrada { background: var(--gris-200); color: var(--gris-600); }
+.puerta-abierta { background: var(--menta); color: var(--negro-tinta); margin-top: var(--space-4); }
+
+.maleta-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-2); margin: var(--space-2) 0; }
+.item-maleta {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border: 1.5px solid var(--gris-200); border-radius: var(--radius-0); padding: var(--space-4) var(--space-2);
+  background: var(--blanco); cursor: pointer; font-size: var(--fs-small); position: relative;
+  transition: border-color 160ms var(--ease-contacto), transform 120ms var(--ease-contacto);
+}
+.item-maleta:hover:not(:disabled) { border-color: var(--naranja-haptica); }
+.item-maleta:active { transform: translateY(1px); }
+.item-maleta.dentro { border-color: var(--menta); background: rgb(0 188 160 / .08); cursor: default; }
+.item-maleta .check { position: absolute; top: 6px; right: 8px; color: var(--verde-petroleo); font-weight: 800; }
+.maleta-estado {
+  text-align: left; font-size: var(--fs-small); color: var(--gris-600);
+  background: var(--gris-100); border-radius: var(--radius-0); padding: var(--space-2) var(--space-3);
+}
+
+/* ---------- Banner de escena en la pregunta ---------- */
+.escena-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  border-radius: var(--radius-0); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); color: var(--blanco);
+}
+.escena-banner .lugar { font-weight: 800; font-size: var(--fs-small); }
+.escena-banner .avance { font-size: var(--fs-label); opacity: 0.95; font-weight: 700; }
+.escena-banner-barra { height: 6px; background: rgb(255 255 255 / .4); border-radius: var(--radius-0); margin-top: var(--space-2); overflow: hidden; }
+.escena-banner-relleno { height: 100%; background: var(--blanco); border-radius: var(--radius-0); transition: width 300ms var(--ease-contacto); }
+
+/* ---------- Secuencia de viaje ---------- */
+.viaje-secuencia { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: var(--space-4) 0; }
+.viaje-paso { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: var(--fs-label); color: var(--gris-600); }
+.viaje-paso .ico { font-size: 1.6rem; filter: grayscale(0.3); }
+.viaje-paso.activo .ico { filter: none; transform: scale(1.15); }
+.viaje-paso.activo { color: var(--negro-tinta); font-weight: 800; }
+.viaje-flecha { color: var(--gris-400); font-size: 1.1rem; }
+
+/* ---------- Barra de progreso ---------- */
+.progreso-wrap { width: 100%; max-width: 640px; margin: 0 auto var(--space-2); text-align: left; }
+.progreso-txt { font-size: var(--fs-small); color: var(--gris-600); margin-bottom: 6px; }
+.progreso-barra { height: 8px; background: var(--gris-200); border-radius: var(--radius-0); overflow: hidden; }
+.progreso-relleno { height: 100%; background: var(--naranja-haptica); border-radius: var(--radius-0); transition: width 300ms var(--ease-contacto); }
+
+/* ---------- Barra superior fija ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-3) var(--space-4); background: rgb(244 244 242 / .92);
+  backdrop-filter: blur(6px); border-bottom: 1px solid var(--gris-200);
+}
+.topbar .marca { font-weight: 800; letter-spacing: 0.02em; color: var(--naranja-haptica); text-transform: uppercase; font-size: var(--fs-small); }
+.topbar .acciones { display: flex; gap: var(--space-2); }
+.chip-btn {
+  background: var(--blanco); border: 1.5px solid var(--gris-200);
+  border-radius: var(--radius-0); padding: var(--space-2) var(--space-3); font-size: var(--fs-small); cursor: pointer;
+  font-weight: 700; letter-spacing: 0.04em;
+  transition: border-color 160ms var(--ease-contacto);
+}
+.chip-btn:hover { border-color: var(--naranja-haptica); }
+
+/* ---------- Modal ---------- */
+.modal-fondo {
+  position: fixed; inset: 0; background: rgb(13 27 29 / .55);
+  display: flex; align-items: center; justify-content: center; padding: var(--space-4); z-index: 50;
+}
+.modal { background: var(--blanco); border-radius: var(--radius-md); max-width: 520px; width: 100%; padding: var(--space-6); box-shadow: var(--shadow-raised); }
+.modal h2 { margin-top: 0; }
+
+/* ---------- Pasaporte ---------- */
+.pasaporte-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-2); text-align: left; }
+.sello {
+  border: 1.5px dashed var(--gris-200); border-radius: var(--radius-0); padding: var(--space-3);
+  font-size: var(--fs-small); display: flex; flex-direction: column; gap: 4px;
+}
+.sello.obtenido { border-style: solid; border-color: var(--naranja-haptica); background: var(--naranja-100); }
+.sello .estado { font-weight: 700; color: var(--naranja-haptica); }
+
+/* ---------- Tabla panel Juli ---------- */
+.tabla { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.tabla th, .tabla td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--gris-200); }
+.tabla th { color: var(--gris-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--fs-label); }
+.badge { padding: 3px var(--space-2); border-radius: var(--radius-0); font-size: var(--fs-label); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.badge.activo { background: rgb(0 188 160 / .16); color: var(--verde-petroleo); }
+.badge.completado { background: var(--gris-200); color: var(--negro-tinta); }
+.badge.bloqueado { background: var(--naranja-100); color: var(--naranja-700); }
+
+.aviso {
+  background: var(--arena); border: 1px solid var(--ambar); color: var(--negro-tinta);
+  border-radius: var(--radius-0); padding: var(--space-3); font-size: var(--fs-small); margin-bottom: var(--space-4); text-align: left;
+}
+
+.spinner {
+  width: 22px; height: 22px; border: 3px solid var(--gris-200);
+  border-top-color: var(--naranja-haptica); border-radius: 50%;
+  animation: girar 0.8s linear infinite; display: inline-block; vertical-align: middle;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.texto-error { color: var(--naranja-700); }
+
+/* ===================== VIDEOJUEGO — COLOMBIA ===================== */
+.juego { display: flex; flex-direction: column; align-items: center; padding: var(--space-3) var(--space-3) var(--space-7); }
+
+.juego-hud {
+  width: 100%; max-width: 760px; display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-2);
+}
+.hud-mision { font-weight: 800; font-size: var(--fs-small); color: var(--negro-tinta); }
+.hud-inv { display: flex; align-items: center; gap: 6px; }
+.hud-item {
+  width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-0); background: var(--gris-200); font-size: 1.1rem; color: var(--gris-400);
+}
+.hud-item.on { background: var(--naranja-100); color: inherit; box-shadow: inset 0 0 0 1.5px var(--naranja-haptica); }
+
+.mundo-wrap { width: 100%; max-width: 760px; }
+.mundo-canvas {
+  width: 100%; height: auto; display: block; border-radius: var(--radius-0);
+  box-shadow: var(--shadow-raised); touch-action: none; background: var(--arena);
+}
+.mundo-controles { display: flex; justify-content: center; margin-top: var(--space-3); }
+.dpad {
+  display: grid; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); gap: 6px;
+}
+.dpad-btn {
+  border: none; border-radius: var(--radius-0); background: var(--blanco); box-shadow: var(--shadow-soft);
+  font-size: 1.2rem; font-weight: 800; color: var(--negro-tinta); cursor: pointer; user-select: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.dpad-btn:active { transform: translateY(1px); background: var(--naranja-100); }
+.dpad-btn.accion { background: var(--naranja-haptica); color: var(--blanco); }
+.dpad-btn.accion:disabled { background: var(--gris-200); color: var(--gris-400); }
+.mundo-ayuda { max-width: 640px; text-align: center; font-size: var(--fs-small); color: var(--gris-600); margin-top: var(--space-3); }
+
+.juego-toast {
+  position: fixed; bottom: var(--space-5); left: 50%; transform: translateX(-50%);
+  background: rgb(13 27 29 / .94); color: var(--blanco); padding: var(--space-3) var(--space-5); border-radius: var(--radius-0);
+  font-weight: 700; font-size: var(--fs-small); z-index: 60; box-shadow: var(--shadow-raised);
+  animation: subir 0.2s ease;
+}
+@keyframes subir { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* Inventario */
+.inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); }
+.inv-celda {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: var(--space-3) 6px;
+  border-radius: var(--radius-0); border: 1.5px dashed var(--gris-200); font-size: var(--fs-small); color: var(--gris-600);
+}
+.inv-celda.tiene { border-style: solid; border-color: var(--naranja-haptica); background: var(--naranja-100); color: var(--negro-tinta); }
+.inv-emoji { font-size: 1.7rem; }
+.inv-especiales { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin-bottom: var(--space-2); }
+.inv-chip {
+  border: 1.5px solid var(--gris-200); background: var(--blanco); border-radius: var(--radius-0); padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-small); font-weight: 700; color: var(--gris-600); cursor: default;
+}
+.inv-chip.on { border-color: var(--naranja-haptica); color: var(--negro-tinta); }
+button.inv-chip { cursor: pointer; }
+
+/* Álbum */
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
+.foto { border: 1px solid var(--gris-200); border-radius: var(--radius-0); overflow: hidden; }
+.foto-marco { background: var(--negro-tinta); color: var(--blanco); font-size: 2rem; text-align: center; padding: var(--space-4) 0; }
+.foto-pie { font-size: var(--fs-small); padding: var(--space-2); text-align: center; }
+
+/* Misterio */
+.pistas { text-align: left; margin: var(--space-2) 0 var(--space-4); }
+.pistas-titulo { font-weight: 800; margin-bottom: 6px; }
+.pista { display: flex; gap: var(--space-2); align-items: flex-start; font-size: var(--fs-small); margin-bottom: 6px; }
+.pista-num { background: var(--naranja-haptica); color: var(--blanco); border-radius: var(--radius-0); padding: 1px var(--space-2); font-weight: 800; white-space: nowrap; }
+.codigo-slots { display: flex; gap: var(--space-3); justify-content: center; margin: var(--space-3) 0; }
+.slot {
+  width: 48px; height: 58px; border-radius: var(--radius-0); border: 2px solid var(--gris-200);
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800;
+}
+.slot.lleno { border-color: var(--naranja-haptica); background: var(--naranja-100); }
+.keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); max-width: 260px; margin: 0 auto; }
+.key { padding: var(--space-4); font-size: 1.1rem; font-weight: 800; border: none; border-radius: var(--radius-0); background: var(--gris-200); cursor: pointer; }
+.key:active { transform: translateY(1px); }
+.key-ok { background: var(--naranja-haptica); color: var(--blanco); }
+.key-ok:disabled { background: var(--gris-200); color: var(--gris-400); }
+
+/* Misión intro */
+.mision-meta { display: flex; gap: var(--space-4); justify-content: center; margin: var(--space-3) 0; font-weight: 700; color: var(--naranja-700); }
+
+/* Pasaporte Háptica AIRLINES */
+.pasaporte {
+  width: 100%; max-width: 460px; background: linear-gradient(160deg, var(--negro-tinta), var(--verde-petroleo));
+  color: var(--blanco); border-radius: var(--radius-0); padding: var(--space-5); box-shadow: var(--shadow-raised); position: relative; overflow: hidden;
+}
+.pasaporte-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; letter-spacing: 0.03em; }
+.pasaporte-vuelo { background: rgb(255 255 255 / .18); padding: 3px var(--space-3); border-radius: var(--radius-0); font-size: var(--fs-small); }
+.pasaporte-cuerpo { display: flex; gap: var(--space-4); align-items: center; margin: var(--space-5) 0; position: relative; min-height: 96px; }
+.pasaporte-foto {
+  width: 76px; height: 76px; border-radius: var(--radius-0); background: var(--blanco); color: var(--negro-tinta);
+  display: flex; align-items: center; justify-content: center; font-size: 2.6rem; flex: 0 0 auto;
+}
+.pasaporte-nombre { font-size: var(--fs-lead); font-weight: 800; }
+.pasaporte-linea { font-size: var(--fs-small); opacity: 0.9; }
+.pasaporte-ruta { display: flex; align-items: center; justify-content: center; gap: var(--space-2); background: rgb(0 0 0 / .18); border-radius: var(--radius-0); padding: var(--space-3); margin-bottom: var(--space-3); }
+.ruta-item { display: inline-flex; align-items: center; gap: var(--space-2); }
+.ruta-cod { font-weight: 800; font-size: 1.1rem; opacity: 0.75; }
+.ruta-cod.activo { opacity: 1; color: var(--arena); }
+.ruta-flecha { opacity: 0.6; }
+.pasaporte-sellos { display: flex; gap: var(--space-2); justify-content: center; margin-bottom: var(--space-4); }
+.casilla-sello {
+  width: 46px; height: 46px; border-radius: var(--radius-0); border: 2px dashed rgb(255 255 255 / .4);
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: rgb(255 255 255 / .5);
+}
+.casilla-sello.puesto { border-style: solid; border-color: var(--arena); color: var(--blanco); }
+
+.pasaporte-paginas { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); margin-bottom: var(--space-4); }
+.pagina-sello {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgb(255 255 255 / .10); border: 1.5px dashed rgb(255 255 255 / .4);
+  border-radius: var(--radius-0); padding: var(--space-3) 6px;
+}
+.pagina-sello.puesto { border-style: solid; border-color: var(--arena); background: rgb(255 255 255 / .18); }
+.pagina-dot { font-size: 1.4rem; }
+.pagina-nombre { font-weight: 800; font-size: var(--fs-small); }
+.pagina-estado { font-size: var(--fs-label); opacity: 0.85; }
+
+.sello-viaje {
+  position: absolute; right: 0; top: -6px; transform: rotate(-14deg);
+  animation: sellar 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.sello-inner {
+  border: 3px solid var(--ambar); color: var(--ambar); border-radius: var(--radius-0); padding: var(--space-2) var(--space-3);
+  text-align: center; background: rgb(255 255 255 / .08); font-weight: 900;
+}
+.sello-txt { font-size: var(--fs-small); line-height: 1.1; letter-spacing: 0.04em; }
+.sello-sub { font-size: var(--fs-label); margin-top: 4px; opacity: 0.9; }
+@keyframes sellar {
+  0% { transform: rotate(-14deg) scale(2.4); opacity: 0; }
+  60% { transform: rotate(-14deg) scale(0.9); opacity: 1; }
+  100% { transform: rotate(-14deg) scale(1); opacity: 1; }
+}
+
+/* ---------- Diálogo NPC ---------- */
+.dialogo-escena {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-4);
+  border-radius: var(--radius-0); padding: var(--space-5); font-size: 2.6rem; color: var(--blanco); margin-bottom: var(--space-3);
+}
+.dialogo-vs { font-size: 1.4rem; opacity: 0.8; }
+.dialogo-caja {
+  text-align: left; background: var(--gris-100); border-radius: var(--radius-0); padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--naranja-haptica);
+}
+.dialogo-nombre { font-weight: 800; margin-bottom: 6px; }
+.dialogo-texto { line-height: 1.5; }
+.dialogo-progreso { display: flex; gap: 6px; justify-content: center; margin: var(--space-3) 0; }
+.dialogo-punto { width: 8px; height: 8px; border-radius: var(--radius-0); background: var(--gris-200); }
+.dialogo-punto.activo { background: var(--naranja-haptica); }
+
+/* ---------- Carrito ---------- */
+.carril { position: relative; height: 90px; margin: var(--space-4) 0; overflow: hidden; }
+.carril-linea {
+  position: absolute; bottom: 26px; left: 0; right: 0; height: 4px;
+  background: repeating-linear-gradient(90deg, var(--gris-200) 0 16px, transparent 16px 30px);
+}
+.carril-destino { position: absolute; right: 8px; bottom: 20px; font-size: 2.2rem; }
+.carrito-anim { position: absolute; bottom: 18px; font-size: 2.4rem; animation: rodar 1.6s ease-in forwards; }
+@keyframes rodar { from { left: -10%; } to { left: 78%; } }
+
+/* ---------- Minijuegos: precisión (tejo/rana/bolos) ---------- */
+.precision-barra {
+  position: relative; height: 46px; background: var(--gris-200); border-radius: var(--radius-0);
+  margin: var(--space-4) 0; overflow: hidden;
+}
+.precision-objetivo { position: absolute; top: 0; bottom: 0; background: rgb(0 188 160 / .28); border-left: 2px dashed var(--verde-petroleo); border-right: 2px dashed var(--verde-petroleo); }
+.precision-marcador { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 1.6rem; }
+
+/* ---------- Minijuego: carritos ---------- */
+.ruta-carritos { position: relative; height: 40px; background: var(--gris-200); border-radius: var(--radius-0); margin: var(--space-4) 0; overflow: hidden; }
+.ruta-progreso { position: absolute; left: 0; top: 0; bottom: 0; background: var(--naranja-100); }
+.ruta-carro { position: absolute; top: 50%; transform: translateY(-50%); font-size: 1.6rem; transition: left 150ms var(--ease-contacto); }
+.ruta-meta { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; }
+
+/* ---------- Minijuego: cartas ---------- */
+.cartas-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); margin: var(--space-4) 0; }
+.carta {
+  aspect-ratio: 3/4; border: none; border-radius: var(--radius-0); background: var(--naranja-haptica); color: var(--blanco);
+  font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.carta.abierta { background: var(--blanco); box-shadow: inset 0 0 0 2px var(--naranja-haptica); }
+
+/* ---------- Circuito Final (mapa) ---------- */
+.circuito { width: 100%; max-width: 620px; margin: 0 auto; }
+.circuito-titulo { font-weight: 800; margin: 6px 0 var(--space-3); }
+.estacion {
+  display: flex; align-items: center; gap: var(--space-3); background: var(--blanco); border-radius: var(--radius-0);
+  padding: var(--space-3) var(--space-4); box-shadow: var(--shadow-soft); margin-bottom: var(--space-2); border-left: 5px solid var(--gris-200);
+}
+.estacion.done { border-left-color: var(--verde-petroleo); }
+.estacion.actual { border-left-color: var(--naranja-haptica); }
+.estacion.locked { opacity: 0.6; }
+.estacion-emoji { font-size: 1.6rem; width: 34px; text-align: center; }
+.estacion-info { flex: 1; text-align: left; }
+.estacion-titulo { font-weight: 800; }
+.estacion-estado { font-size: var(--fs-label); color: var(--gris-600); }
+.estacion-btn { width: auto; padding: var(--space-3) var(--space-4); }
+
+/* ---------- Cámara (Modo Cámara + botón flotante) ---------- */
+.camara-fab {
+  position: fixed; right: var(--space-4); bottom: var(--space-4); z-index: 45;
+  width: 56px; height: 56px; border-radius: var(--radius-0); border: none; cursor: pointer;
+  background: var(--naranja-haptica); color: var(--blanco); font-size: 1.6rem; box-shadow: var(--shadow-raised);
+}
+.camara-fab:hover { background: var(--naranja-600); }
+.camara-modo {
+  position: fixed; inset: 0; z-index: 70; background: var(--negro-tinta);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-3); padding: var(--space-4); color: var(--blanco);
+}
+.camara-top {
+  position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center;
+  justify-content: space-between; padding: var(--space-3) var(--space-4); font-weight: 800;
+}
+.camara-visor { position: relative; border-radius: var(--radius-0); overflow: hidden; }
+.camara-esquinas .esq { position: absolute; width: 22px; height: 22px; border: 3px solid rgb(255 255 255 / .9); }
+.camara-esquinas .e1 { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.camara-esquinas .e2 { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.camara-esquinas .e3 { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.camara-esquinas .e4 { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+.camara-flash { position: absolute; inset: 0; background: var(--blanco); z-index: 5; animation: flash 0.4s ease-out; }
+@keyframes flash { 0% { opacity: 0.95; } 100% { opacity: 0; } }
+.camara-capturado {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  background: rgb(0 0 0 / .65); padding: 6px var(--space-4); border-radius: var(--radius-0); font-weight: 800; font-size: var(--fs-small);
+}
+.camara-hint { color: rgb(255 255 255 / .85); font-size: var(--fs-small); }
+.camara-recuerdo { text-align: center; }
+.camara-recuerdo-folder { font-weight: 800; }
+.camara-recuerdo-caption { opacity: 0.9; font-style: italic; margin-top: 4px; }
+
+/* ---------- Escena/foto estilizada ---------- */
+.escena-foto {
+  border-radius: var(--radius-0); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+}
+.escena-foto-elementos { display: flex; align-items: flex-end; gap: 6px; }
+.escena-foto-avatar { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+
+/* ---------- Álbum: carpetas / fotos / ampliada ---------- */
+.album-modal { max-width: 760px; max-height: 86vh; overflow-y: auto; }
+.album-carpetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
+.carpeta {
+  border: 1.5px solid var(--gris-200); background: var(--blanco); border-radius: var(--radius-0); padding: var(--space-2);
+  cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.carpeta.tiene { border-color: var(--naranja-haptica); }
+.carpeta-mini { border-radius: var(--radius-0); overflow: hidden; }
+.carpeta-nombre { font-weight: 800; font-size: var(--fs-small); }
+.carpeta-conteo { font-size: var(--fs-label); color: var(--gris-600); }
+.carpeta.tiene .carpeta-conteo { color: var(--naranja-700); font-weight: 700; }
+
+.album-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
+.album-foto { border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.album-foto-pie { font-size: var(--fs-label); color: var(--gris-600); }
+.foto-ampliada { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); }
+.foto-ampliada-caption { font-style: italic; font-weight: 700; text-align: center; }
+.foto-ampliada-sub { font-size: var(--fs-small); color: var(--gris-600); }
+
+/* ---------- Aterrizaje ---------- */
+.landing { background: linear-gradient(180deg, var(--menta), var(--arena)); }
+.landing-cielo { position: relative; width: 100%; max-width: 520px; height: 200px; margin: 0 auto; overflow: hidden; }
+.landing-nube { position: absolute; font-size: 2rem; opacity: 0.9; animation: cruzar 3s linear infinite; }
+.landing-nube.n1 { top: 20px; animation-delay: 0s; }
+.landing-nube.n2 { top: 80px; animation-delay: 1s; }
+.landing-nube.n3 { top: 130px; animation-delay: 2s; }
+@keyframes cruzar { from { left: 110%; } to { left: -20%; } }
+.landing-avion { position: absolute; top: 40px; font-size: 3rem; animation: descender 2.2s ease-in forwards; }
+@keyframes descender { from { left: 8%; top: 20px; transform: rotate(0deg); } to { left: 62%; top: 120px; transform: rotate(12deg); } }
+.landing-destino { position: absolute; right: 8%; bottom: 6px; font-size: 2.6rem; }
+.landing-titulo { text-align: center; letter-spacing: 0.04em; }
+
+@media (max-width: 520px) {
+  h1 { font-size: 1.5rem; }
+  .tarjeta { padding: var(--space-5) var(--space-4); }
+  .btn { width: 100%; }
+  .dpad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); }
+}
+
+/* ===================== RONDA DE REFINAMIENTO ===================== */
+
+/* ---------- CTA principal (siguiente paso del videojuego) ---------- */
+.btn-cta {
+  font-size: var(--fs-small); font-weight: 800; padding: var(--space-4) var(--space-6);
+  box-shadow: var(--shadow-raised);
+  letter-spacing: 0.12em;
+}
+
+/* ---------- Consentimiento: pasos ---------- */
+.pasos-consentimiento {
+  display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; margin: var(--space-4) 0 4px;
+}
+.pasos-consentimiento span {
+  background: var(--gris-100); border: 1.5px solid var(--gris-200); border-radius: var(--radius-0);
+  padding: var(--space-2) var(--space-4); font-size: var(--fs-small); font-weight: 700; color: var(--gris-600);
+}
+
+/* ---------- Modo revisión ---------- */
+.review-bar { position: fixed; left: 12px; bottom: 12px; z-index: 55; max-width: calc(100% - 24px); }
+.review-badge {
+  background: var(--negro-tinta); color: var(--arena); border: none; border-radius: var(--radius-0);
+  padding: var(--space-2) var(--space-4); font-size: var(--fs-label); font-weight: 800; cursor: pointer; letter-spacing: 0.06em;
+  box-shadow: var(--shadow-raised); text-transform: uppercase;
+}
+.review-controles {
+  margin-top: var(--space-2); background: var(--blanco); border-radius: var(--radius-0); padding: var(--space-2);
+  box-shadow: var(--shadow-raised); display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+}
+.review-hint { font-size: var(--fs-label); color: var(--gris-600); font-weight: 700; }
+.review-chip {
+  border: 1.5px solid var(--gris-200); background: var(--blanco); border-radius: var(--radius-0);
+  padding: 6px var(--space-3); font-size: var(--fs-small); font-weight: 700; cursor: pointer; color: var(--negro-tinta);
+}
+.review-chip:hover { border-color: var(--naranja-haptica); }
+.review-chip.activo { border-color: var(--naranja-haptica); background: var(--naranja-100); }
+.review-chip.peligro { color: var(--naranja-700); }
+.review-nav { display: flex; gap: var(--space-2); justify-content: center; margin-top: var(--space-3); }
+
+/* ---------- Acertijo ---------- */
+.puzzle-pregunta {
+  background: var(--naranja-100); border-left: 4px solid var(--naranja-haptica); border-radius: var(--radius-0);
+  padding: var(--space-3) var(--space-4); text-align: left; font-weight: 700; margin: var(--space-2) 0;
+}
+
+/* ---------- Confeti ---------- */
+.confeti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 30; }
+.confeti-trozo {
+  position: absolute; top: -12px; width: 9px; height: 14px; border-radius: var(--radius-0);
+  animation-name: caer; animation-timing-function: linear; animation-fill-mode: forwards;
+}
+@keyframes caer {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(540deg); opacity: 0.9; }
+}
+
+/* ---------- Cámara automática ---------- */
+.auto-camara {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-3); background: var(--negro-tinta); color: var(--blanco); min-height: 70vh; padding: var(--space-5);
+}
+.auto-cuenta {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; font-weight: 900; color: var(--blanco); text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.auto-camara-pie { font-weight: 800; font-size: var(--fs-small); opacity: 0.9; }
+
+/* ---------- Gran cierre ---------- */
+.cierre-grande { max-width: 680px; }
+.cierre-emoji { font-size: 3.2rem; }
+.cierre-mapa { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; margin: var(--space-4) 0; }
+.cierre-parada {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--naranja-100); border: 1.5px solid var(--naranja-haptica); border-radius: var(--radius-0); padding: var(--space-2) var(--space-3);
+}
+.cierre-parada .cp-ico { font-size: 1.5rem; }
+.cierre-parada b { font-size: var(--fs-label); }
+.cierre-parada i { font-style: normal; font-size: var(--fs-label); color: var(--verde-petroleo); font-weight: 800; }
+.cierre-linea { width: 18px; height: 3px; background: var(--naranja-haptica); border-radius: var(--radius-0); opacity: 0.5; }
+.cierre-tesoros { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); }
+.tesoro {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--gris-100); border-radius: var(--radius-0); padding: var(--space-3) var(--space-2);
+}
+.tesoro span { font-size: 1.6rem; }
+.tesoro b { font-size: var(--fs-small); }
+.tesoro i { font-style: normal; font-size: var(--fs-label); color: var(--gris-600); }
+.cierre-album { max-width: 760px; }
+.cierre-album-total {
+  display: inline-block; background: var(--naranja-100); color: var(--naranja-700);
+  font-weight: 800; padding: 6px var(--space-4); border-radius: var(--radius-0); margin-bottom: var(--space-3);
+}
+
+/* ---------- Despedida (post-créditos) ---------- */
+.despedida { background: linear-gradient(180deg, var(--negro-tinta), var(--verde-petroleo) 55%, var(--arena)); }
+.despedida-cielo { position: relative; width: 100%; max-width: 520px; height: 120px; overflow: hidden; }
+.despedida-nube { position: absolute; font-size: 1.8rem; opacity: 0.85; animation: cruzar 9s linear infinite; }
+.despedida-nube.d1 { top: 18px; animation-delay: 0s; }
+.despedida-nube.d2 { top: 66px; animation-delay: 3.5s; }
+.despedida-avion { position: absolute; top: 34px; left: 40%; font-size: 2.6rem; animation: flotar 3s ease-in-out infinite; }
+@keyframes flotar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.despedida-tarjeta { background: rgb(255 255 255 / .96); }
+.despedida-intriga { font-style: italic; color: var(--naranja-700); font-weight: 700; }
+.despedida-firma {
+  margin-top: var(--space-3); font-weight: 800; color: var(--naranja-700);
+  border-top: 1px dashed var(--gris-200); padding-top: var(--space-3);
+}

@@ -1,0 +1,256 @@
+rules_version = '2';
+// ARCHIVO GENERADO por scripts/generate_firestore_rules.mjs — NO editar a mano.
+// El mapa de puertas se deriva de experiencia.json (194 preguntas con puerta previa).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esDeHaptica() {
+      return request.auth != null
+        && request.auth.token.email.matches('.*@haptica[.]co$');
+    }
+
+    function esElMismoUsuario(uid) {
+      return request.auth.uid == uid;
+    }
+
+    function esJuli() {
+      return request.auth != null && request.auth.token.role == 'juli';
+    }
+
+    // Llave del bloque ANTERIOR requerida para escribir una respuesta.
+    // Devuelve null cuando la pregunta pertenece al primer bloque (sin puerta).
+    function llavePreviaDe(idInterno) {
+      return ({
+        'P011': 'LLAVE-CO-01',
+        'P012': 'LLAVE-CO-01',
+        'P013': 'LLAVE-CO-01',
+        'P014': 'LLAVE-CO-01',
+        'P015': 'LLAVE-CO-01',
+        'P016': 'LLAVE-CO-01',
+        'P017': 'LLAVE-CO-01',
+        'P018': 'LLAVE-CO-01',
+        'P019': 'LLAVE-CO-01',
+        'P020': 'LLAVE-CO-02',
+        'P021': 'LLAVE-CO-02',
+        'P022': 'LLAVE-CO-02',
+        'P023': 'LLAVE-CO-02',
+        'P024': 'LLAVE-CO-02',
+        'P025': 'LLAVE-CO-02',
+        'P026': 'LLAVE-CO-02',
+        'P027': 'LLAVE-CO-02',
+        'P028': 'LLAVE-MX-01',
+        'P029': 'LLAVE-MX-01',
+        'P030': 'LLAVE-MX-01',
+        'P031': 'LLAVE-MX-01',
+        'P032': 'LLAVE-MX-01',
+        'P033': 'LLAVE-MX-01',
+        'P034': 'LLAVE-MX-01',
+        'P035': 'LLAVE-MX-01',
+        'P036': 'LLAVE-MX-02',
+        'P037': 'LLAVE-MX-02',
+        'P038': 'LLAVE-MX-02',
+        'P039': 'LLAVE-MX-02',
+        'P040': 'LLAVE-MX-02',
+        'P041': 'LLAVE-MX-02',
+        'P042': 'LLAVE-MX-02',
+        'P043': 'LLAVE-MX-02',
+        'P044': 'LLAVE-MX-03',
+        'P045': 'LLAVE-MX-03',
+        'P046': 'LLAVE-MX-03',
+        'P047': 'LLAVE-MX-03',
+        'P048': 'LLAVE-MX-03',
+        'P049': 'LLAVE-MX-03',
+        'P050': 'LLAVE-MX-03',
+        'P051': 'LLAVE-MX-04',
+        'P052': 'LLAVE-MX-04',
+        'P053': 'LLAVE-MX-04',
+        'P054': 'LLAVE-MX-04',
+        'P055': 'LLAVE-MX-04',
+        'P056': 'LLAVE-MX-04',
+        'P057': 'LLAVE-MX-04',
+        'P058': 'LLAVE-MX-04',
+        'P059': 'LLAVE-MX-04',
+        'P060': 'LLAVE-CL-01',
+        'P061': 'LLAVE-CL-01',
+        'P062': 'LLAVE-CL-01',
+        'P063': 'LLAVE-CL-01',
+        'P064': 'LLAVE-CL-02',
+        'P065': 'LLAVE-CL-02',
+        'P066': 'LLAVE-CL-02',
+        'P067': 'LLAVE-CL-02',
+        'P068': 'LLAVE-CL-02',
+        'P069': 'LLAVE-CL-02',
+        'P070': 'LLAVE-CL-02',
+        'P071': 'LLAVE-CL-02',
+        'P072': 'LLAVE-CL-02',
+        'P073': 'LLAVE-CL-03',
+        'P074': 'LLAVE-CL-03',
+        'P075': 'LLAVE-CL-03',
+        'P076': 'LLAVE-CL-03',
+        'P077': 'LLAVE-CL-03',
+        'P078': 'LLAVE-CL-03',
+        'P079': 'LLAVE-CL-03',
+        'P080': 'LLAVE-CL-03',
+        'P081': 'LLAVE-CL-03',
+        'P082': 'LLAVE-CL-04',
+        'P083': 'LLAVE-CL-04',
+        'P084': 'LLAVE-CL-04',
+        'P085': 'LLAVE-CL-04',
+        'P086': 'LLAVE-CL-04',
+        'P087': 'LLAVE-CL-04',
+        'P088': 'LLAVE-CL-04',
+        'P089': 'LLAVE-CL-04',
+        'P090': 'LLAVE-CL-04',
+        'P091': 'LLAVE-CL-04',
+        'P092': 'LLAVE-CL-04',
+        'P093': 'LLAVE-CL-04',
+        'P094': 'LLAVE-CL-04',
+        'P095': 'LLAVE-CL-04',
+        'P096': 'LLAVE-CL-04',
+        'P097': 'LLAVE-CL-04',
+        'P098': 'LLAVE-CL-04',
+        'P099': 'LLAVE-CL-04',
+        'P100': 'LLAVE-CL-04',
+        'P101': 'LLAVE-CL-04',
+        'P102': 'LLAVE-CL-04',
+        'P103': 'LLAVE-CL-04',
+        'P104': 'LLAVE-CL-04',
+        'P105': 'LLAVE-CL-04',
+        'P106': 'LLAVE-CL-04',
+        'P107': 'LLAVE-CO2-01',
+        'P108': 'LLAVE-CO2-01',
+        'P109': 'LLAVE-CO2-01',
+        'P110': 'LLAVE-CO2-01',
+        'P111': 'LLAVE-CO2-01',
+        'P112': 'LLAVE-CO2-01',
+        'P113': 'LLAVE-CO2-01',
+        'P114': 'LLAVE-CO2-01',
+        'P115': 'LLAVE-CO2-01',
+        'P116': 'LLAVE-CO2-01',
+        'P117': 'LLAVE-CO2-01',
+        'P118': 'LLAVE-CO2-01',
+        'P119': 'LLAVE-CO2-01',
+        'P120': 'LLAVE-CO2-01',
+        'P121': 'LLAVE-CO2-01',
+        'P122': 'LLAVE-CO2-01',
+        'P123': 'LLAVE-CO2-01',
+        'P124': 'LLAVE-CO2-01',
+        'P125': 'LLAVE-CO2-01',
+        'P126': 'LLAVE-CO2-01',
+        'P127': 'LLAVE-CO2-01',
+        'P128': 'LLAVE-CO2-01',
+        'P129': 'LLAVE-CO2-01',
+        'P130': 'LLAVE-CO2-01',
+        'P131': 'LLAVE-CO2-01',
+        'P132': 'LLAVE-CO2-01',
+        'P133': 'LLAVE-CO2-01',
+        'P134': 'LLAVE-CO2-02',
+        'P135': 'LLAVE-CO2-02',
+        'P136': 'LLAVE-CO2-02',
+        'P137': 'LLAVE-CO2-02',
+        'P138': 'LLAVE-CO2-02',
+        'P139': 'LLAVE-CO2-02',
+        'P140': 'LLAVE-CO2-02',
+        'P141': 'LLAVE-CO2-02',
+        'P142': 'LLAVE-CO2-02',
+        'P143': 'LLAVE-CO2-02',
+        'P144': 'LLAVE-CO2-02',
+        'P145': 'LLAVE-CO2-02',
+        'P146': 'LLAVE-CO2-02',
+        'P147': 'LLAVE-CO2-02',
+        'P148': 'LLAVE-CO2-02',
+        'P149': 'LLAVE-CO2-02',
+        'P150': 'LLAVE-CO2-02',
+        'P151': 'LLAVE-CO2-02',
+        'P152': 'LLAVE-CO2-02',
+        'P153': 'LLAVE-CO2-02',
+        'P154': 'LLAVE-CO2-02',
+        'P155': 'LLAVE-CO2-02',
+        'P156': 'LLAVE-CO2-02',
+        'P157': 'LLAVE-CO2-02',
+        'P158': 'LLAVE-CO2-02',
+        'P159': 'LLAVE-CO2-02',
+        'P160': 'LLAVE-CO2-02',
+        'P161': 'LLAVE-CO2-03',
+        'P162': 'LLAVE-CO2-03',
+        'P163': 'LLAVE-CO2-03',
+        'P164': 'LLAVE-CO2-03',
+        'P165': 'LLAVE-CO2-03',
+        'P166': 'LLAVE-CO2-03',
+        'P167': 'LLAVE-CO2-03',
+        'P168': 'LLAVE-CO2-03',
+        'P169': 'LLAVE-CO2-03',
+        'P170': 'LLAVE-CO2-03',
+        'P171': 'LLAVE-CO2-03',
+        'P172': 'LLAVE-CO2-03',
+        'P173': 'LLAVE-CO2-03',
+        'P174': 'LLAVE-CO2-03',
+        'P175': 'LLAVE-CO2-03',
+        'P176': 'LLAVE-CO2-03',
+        'P177': 'LLAVE-CO2-03',
+        'P178': 'LLAVE-CO2-03',
+        'P179': 'LLAVE-CO2-03',
+        'P180': 'LLAVE-CO2-03',
+        'P181': 'LLAVE-CO2-03',
+        'P182': 'LLAVE-CO2-03',
+        'P183': 'LLAVE-CO2-03',
+        'P184': 'LLAVE-CO2-03',
+        'P185': 'LLAVE-CO2-03',
+        'P186': 'LLAVE-CO2-03',
+        'P187': 'LLAVE-CO2-03',
+        'P188': 'LLAVE-CO2-03',
+        'P189': 'LLAVE-CO2-04',
+        'P190': 'LLAVE-CO2-04',
+        'P191': 'LLAVE-CO2-04',
+        'P192': 'LLAVE-CO2-04',
+        'P193': 'LLAVE-CO2-04',
+        'P194': 'LLAVE-CO2-04',
+        'P195': 'LLAVE-CO2-04',
+        'P196': 'LLAVE-CO2-04',
+        'P197': 'LLAVE-CO2-04',
+        'P198': 'LLAVE-CO2-04',
+        'P199': 'LLAVE-CO2-04',
+        'P200': 'LLAVE-CO2-04',
+        'P201': 'LLAVE-CO2-04',
+        'P202': 'LLAVE-CO2-04',
+        'P203': 'LLAVE-CO2-04',
+        'P204': 'LLAVE-CO2-04'
+      }).get(idInterno, null);
+    }
+
+    // Puerta: la respuesta solo se acepta si la llave previa ya fue obtenida.
+    function puertaAbierta(uid, idInterno) {
+      return llavePreviaDe(idInterno) == null
+        || get(/databases/$(database)/documents/usuarios/$(uid))
+             .data.progreso.llaves_obtenidas.hasAny([llavePreviaDe(idInterno)]);
+    }
+
+    // Contador para asignar el número de HAPTIQUEÑO (identidad narrativa).
+    match /contadores/{doc} {
+      allow read, write: if esDeHaptica();
+    }
+
+    match /usuarios/{uid} {
+      allow read, write: if esDeHaptica() && esElMismoUsuario(uid);
+      allow read: if esJuli();     // Juli lee (no escribe) el documento de cualquier usuario
+      allow update: if esJuli();   // Juli actualiza (ej. bloqueado_tecnico)
+
+      match /respuestas/{idInterno} {
+        allow read, write: if esDeHaptica() && esElMismoUsuario(uid)
+          && puertaAbierta(uid, idInterno);
+        allow read: if esJuli();
+      }
+
+      match /pausa_juli/{docId} {
+        allow read, write: if esDeHaptica() && esElMismoUsuario(uid);
+        allow read: if esJuli();
+      }
+
+      match /soporte/{docId} {
+        allow create: if esDeHaptica() && esElMismoUsuario(uid);
+        allow read: if esDeHaptica() && esElMismoUsuario(uid);
+        allow read, update: if esJuli();
+      }
+    }
+  }
+}
