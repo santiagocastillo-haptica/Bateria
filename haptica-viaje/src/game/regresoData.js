@@ -34,56 +34,47 @@ export const PISTA_EXTRA_FINAL =
  *  - host: quién la presenta (santi/cami)
  *  - npc: línea narrativa (sin sugerir respuestas)
  *  - pieza: fragmento del misterio final (solo algunas dan dígito)
- *  - foto: momento para el álbum
  */
 export const ACTIVIDADES = [
   {
     id: "misterio_inicial", tipo: "nota", emoji: "🧩", titulo: "El misterio del regreso", host: "santi",
     intro: "Has recorrido Colombia, México y Chile… pero todavía falta una parte del viaje. Hay algo que debemos descubrir antes de terminar.",
     npc: "Reunamos las pistas del viaje. En el camino, cuéntanos cómo has vivido tu día a día.",
-    foto: "Regreso a Colombia",
   },
   {
     id: "tejo", tipo: "precision", emoji: "🎯", titulo: "Tejo", host: "cami",
     tema: { objeto: "tejo", lanzar: "¡Lanzar el tejo!", exito: "¡Mecha! Diste en el centro." },
     npc: "Mientras jugamos tejo, cuéntanos cómo te has sentido últimamente.",
     pieza: { pos: 0, texto: "Ficha de tejo con una anotación al reverso: «Colombia — indicativo +57»" },
-    foto: "Jugando tejo",
   },
   {
     id: "carritos", tipo: "carritos", emoji: "🚗", titulo: "Carritos", host: "santi",
     npc: "Buen pulso al volante. Sigamos el recorrido y sigue contándonos.",
-    foto: "Pista de carritos",
   },
   {
     id: "bolorana", tipo: "precision", emoji: "🐸", titulo: "Rana", host: "cami",
     tema: { objeto: "moneda", lanzar: "¡Lanzar a la rana!", exito: "¡En la boca de la rana!" },
     npc: "¡Buen tino! Continuemos el circuito.",
-    foto: "Bolo rana",
   },
   {
     id: "cartas", tipo: "cartas", emoji: "🃏", titulo: "Cartas", host: "cami",
     npc: "Encontraste las parejas. Sigamos descubriendo el misterio.",
     pieza: { pos: 1, texto: "Una carta con un sello estampado: «México — indicativo +52»" },
-    foto: "Juego de cartas",
   },
   {
     id: "bolos", tipo: "precision", emoji: "🎳", titulo: "Bolos", host: "santi",
     tema: { objeto: "bola", lanzar: "¡Lanzar la bola!", exito: "¡Chuza! Tumbaste todos." },
     npc: "¡Chuza! Vamos por la siguiente parte.",
     pieza: { pos: 2, texto: "Un pin marcado con tinta: «Chile — indicativo +56»" },
-    foto: "Bolos",
   },
   {
     id: "verdadreto", tipo: "verdadreto", emoji: "🎤", titulo: "Verdad o Te atreves", host: "cami",
     npc: "Buen momento. Sigamos avanzando en el circuito.",
-    foto: "Verdad o te atreves",
   },
   {
     id: "final", tipo: "mystery-final", emoji: "🔐", titulo: "El gran misterio final", host: "santi",
     intro: "Todas las pistas del viaje estaban conectadas. Une los fragmentos de Bogotá, México y Chile para abrir la última puerta.",
     npc: "Última parte del recorrido. Gracias por compartir cómo estás viviendo tu experiencia.",
-    foto: "La última puerta",
   },
 ];
 

@@ -34,7 +34,6 @@ import ColombiaGame from "./game/ColombiaGame.jsx";
 import MexicoGame from "./game/MexicoGame.jsx";
 import ChileGame from "./game/ChileGame.jsx";
 import ReturnColombiaGame from "./game/ReturnColombiaGame.jsx";
-import CameraButton from "./game/album/CameraButton.jsx";
 import { BIENVENIDA_CUERPO } from "./data/textos.js";
 import { haptiquenoLabel, etiquetaParticipante } from "./identidad.js";
 import { resolverPerfil } from "./userProfile.js";
@@ -344,8 +343,6 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
   }
 
   const mostrarTopbar = step.tipo !== "cierre";
-  const enJuego =
-    step.tipo !== "login" && step.tipo !== "bienvenida" && step.tipo !== "consentimiento" && !rechazado;
 
   return (
     <div className="app">
@@ -388,8 +385,6 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
       {mostrarAyuda && (
         <HelpReportModal onEnviar={onAyudaEnviar} onClose={() => setMostrarAyuda(false)} />
       )}
-
-      {enJuego && <CameraButton />}
 
       {ES_REVIEW && (
         <ReviewBar

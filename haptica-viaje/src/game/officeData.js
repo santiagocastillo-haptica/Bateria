@@ -23,17 +23,15 @@ export const MUEBLES = [
 /**
  * Objetos interactivos. tipo:
  *  - "item"  : coleccionable → inventario
- *  - "clue"  : revela un dígito del código (posible requerimiento de cámara)
+ *  - "clue"  : revela un dígito del código
  *  - "safe"  : caja fuerte (código → llave)
  *  - "door"  : puerta (requiere item para abrir)
- *  - "photo" : punto para tomar foto (álbum)
  */
 export const OBJETOS = [
   // Coleccionables (Misión: preparar el viaje) — todos en piso alcanzable
   { id: "ropa", tipo: "item", emoji: "👕", nombre: "Ropa", x: 250, y: 320 },
   { id: "cargador", tipo: "item", emoji: "🔌", nombre: "Cargador", x: 600, y: 145 },
   { id: "pasaporte", tipo: "item", emoji: "🛂", nombre: "Pasaporte", x: 210, y: 160 },
-  { id: "camara", tipo: "item", emoji: "📷", nombre: "Cámara", x: 460, y: 320 },
 
   // Pistas del misterio "El mensaje perdido" (código de 3 dígitos)
   { id: "nota", tipo: "clue", emoji: "✉️", nombre: "Nota en el escritorio",
@@ -48,16 +46,12 @@ export const OBJETOS = [
     x: 410, y: 60 },
 
   { id: "mapa", tipo: "clue", emoji: "🗺️", nombre: "Mapa de rutas",
-    pos: 2, requiereCamara: true,
-    texto: "Al fotografiar el mapa aparece una anotación al margen: «Primero la cifra con la que empieza nuestra historia; después, las dos que la completan. Tres dígitos en total.»",
+    pos: 2,
+    texto: "Una anotación al margen del mapa: «Primero la cifra con la que empieza nuestra historia; después, las dos que la completan. Tres dígitos en total.»",
     x: 665, y: 225 },
 
   // Caja fuerte (código → llave)
   { id: "caja", tipo: "safe", emoji: "🧰", nombre: "Caja fuerte", x: 92, y: 300 },
-
-  // Punto de foto libre (álbum)
-  { id: "logo", tipo: "photo", emoji: "🟠", nombre: "Mural Háptica",
-    foto: "Oficina Háptica — Bogotá", x: 300, y: 60 },
 
   // Puertas
   { id: "puertaAcceso", tipo: "door", emoji: "🚪", nombre: "Puerta de acceso",
@@ -86,8 +80,8 @@ export const PREGUNTA_MISTERIO = "¿Con qué número empieza nuestra historia?";
 export const PISTA_EXTRA_MISTERIO =
   "Háptica nació en 2014. Toma la cifra con la que empieza el año y las dos que lo completan.";
 
-/** Los 4 items que deben recogerse para "preparar el viaje". */
-export const ITEMS_REQUERIDOS = ["ropa", "cargador", "pasaporte", "camara"];
+/** Los 3 items que deben recogerse para "preparar el viaje". */
+export const ITEMS_REQUERIDOS = ["ropa", "cargador", "pasaporte"];
 
 /** Vuelo del pasaporte (ilustrativo, configurable). */
 export const VUELO = {

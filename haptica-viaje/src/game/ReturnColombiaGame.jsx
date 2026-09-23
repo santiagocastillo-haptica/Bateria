@@ -6,20 +6,15 @@
  * Intralaboral (123 preguntas, P082–P204) repartido en ORDEN oficial.
  * Las preguntas NO se tocan; la creatividad está en el juego.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import experiencia from "../data/experiencia.json";
 import LandingScreen from "./LandingScreen.jsx";
-import { setContextoFoto } from "./album/fotoContexto.js";
-import { totalFotos } from "./album/albumManager.js";
-import AutoCamera from "./album/AutoCamera.jsx";
-import FinalAlbumShowcase from "./album/FinalAlbumShowcase.jsx";
 import FarewellScreen from "./FarewellScreen.jsx";
 import Confetti from "../components/Confetti.jsx";
 import BoardingPass from "./BoardingPass.jsx";
 import NPCDialog from "./NPCDialog.jsx";
 import MissionQuestions from "./MissionQuestions.jsx";
 import CodePuzzle from "./CodePuzzle.jsx";
-import Album from "./Album.jsx";
 import Inventory from "./Inventory.jsx";
 import PrecisionGame from "./minijuegos/PrecisionGame.jsx";
 import CarritosGame from "./minijuegos/CarritosGame.jsx";
@@ -39,41 +34,20 @@ const LIMITES = Array.from({ length: N + 1 }, (_, i) => Math.round((i * INTRA.le
 
 const hostDe = (h) => (h === "cami" ? CAMI : SANTI);
 
-/** Carpeta del álbum por actividad (misterio_inicial/final no son minijuegos). */
-const CARPETA_POR_ACTIVIDAD = {
-  misterio_inicial: "regreso",
-  tejo: "tejo",
-  carritos: "carritos",
-  bolorana: "bolorana",
-  cartas: "cartas",
-  bolos: "bolos",
-  verdadreto: "verdadreto",
-  final: "ultima_puerta",
-};
-
 export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyph = "🍊" }) {
   const init = usuario?.juego_regreso || {};
-  const fotosPrevias = [
-    ...(usuario?.juego_colombia?.fotos || []),
-    ...(usuario?.juego_mexico?.fotos || []),
-    ...(usuario?.juego_chile?.fotos || []),
-  ];
   const [juego, setJuego] = useState(() => ({
     fase: init.fase || "aterrizaje",
     actIndex: init.actIndex || 0,
     qGlobal: init.qGlobal || 0,
     actividadesHechas: init.actividadesHechas || [],
     piezas: init.piezas || [],
-    fotos: init.fotos || [],
     subfase: init.subfase || "juego",
     completado: !!init.completado,
   }));
-  const [overlay, setOverlay] = useState(null); // album | inventario
+  const [overlay, setOverlay] = useState(null); // inventario
   const [mensaje, setMensaje] = useState("");
   const toastRef = useRef();
-  // Carpeta de la actividad recién completada, para la cámara intercalada
-  // (se necesita mientras `juego.actIndex` ya apunta a la SIGUIENTE actividad).
-  const camaraFolderRef = useRef(null);
 
   function toast(m) {
     setMensaje(m);
@@ -94,31 +68,13 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
       return next;
     });
   }
-  const todasFotos = [...fotosPrevias, ...juego.fotos];
-
-  // Contexto para la cámara (carpeta del álbum según la actividad).
-  useEffect(() => {
-    let folderId = "regreso";
-    if (juego.fase === "actividad") {
-      const ACT = ACTIVIDADES[juego.actIndex];
-      folderId = CARPETA_POR_ACTIVIDAD[ACT?.id] || "regreso";
-    } else if (juego.fase === "sello" || juego.fase === "finale") {
-      folderId = "final";
-    } else if (juego.fase === "camara_intermedia" && camaraFolderRef.current) {
-      folderId = camaraFolderRef.current;
-    }
-    const sceneKey = folderId === "regreso" ? "regreso_haptica" : folderId;
-    setContextoFoto({ folderId, country: "Colombia", sceneKey, avatar: avatarGlyph });
-  }, [juego.fase, juego.actIndex, avatarGlyph]);
-
   // ------- avanzar dentro de una actividad -------
   function ganarJuego() {
     const ACT = ACTIVIDADES[juego.actIndex];
     fusionar((prev) => {
-      const fotos = ACT.foto && !prev.fotos.includes(ACT.foto) ? [...prev.fotos, ACT.foto] : prev.fotos;
       const piezas = ACT.pieza && !prev.piezas.some((p) => p.pos === ACT.pieza.pos)
         ? [...prev.piezas, ACT.pieza] : prev.piezas;
-      return { ...prev, fotos, piezas, subfase: "preguntas" };
+      return { ...prev, piezas, subfase: "preguntas" };
     });
     toast("🪙 ¡Recompensa obtenida!");
   }
@@ -146,11 +102,6 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
     const ACT = ACTIVIDADES[juego.actIndex];
     const nuevo = juego.actIndex + 1;
     const hechas = [...new Set([...juego.actividadesHechas, ACT.id])];
-    // Cámara intercalada: solo después de un minijuego real (no del misterio
-    // inicial ni del misterio final), y alternando sí/no para que no aparezca
-    // siempre — tejo (1) sí, carritos (2) no, rana (3) sí, cartas (4) no...
-    const esMinijuego = ACT.tipo !== "nota" && ACT.tipo !== "mystery-final";
-    const tocaCamara = esMinijuego && juego.actIndex % 2 === 1;
     if (nuevo >= ACTIVIDADES.length) {
       try {
         for (const b of experiencia.bloques.slice(10, 15)) {
@@ -158,9 +109,6 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         }
       } catch (_) {}
       actualizar({ actividadesHechas: hechas, actIndex: nuevo, completado: true, fase: "sello" });
-    } else if (tocaCamara) {
-      camaraFolderRef.current = CARPETA_POR_ACTIVIDAD[ACT.id] || "regreso";
-      actualizar({ actividadesHechas: hechas, actIndex: nuevo, fase: "camara_intermedia" });
     } else {
       actualizar({ actividadesHechas: hechas, actIndex: nuevo, fase: "mundo", subfase: "juego" });
       toast("✅ Actividad completada — has avanzado en el recorrido.");
@@ -188,13 +136,7 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         avatarGlyph={avatarGlyph}
         lineas={SANTI_CAMI_BIENVENIDA}
         botonFinal="Empezar el Circuito Final"
-        onFin={() => {
-          fusionar((prev) => ({
-            ...prev,
-            fotos: prev.fotos.includes("Regreso a Háptica") ? prev.fotos : [...prev.fotos, "Regreso a Háptica"],
-            fase: "mundo",
-          }));
-        }}
+        onFin={() => actualizar({ fase: "mundo" })}
       />
     );
   }
@@ -207,13 +149,7 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         sellos={[0, 1, 2, 3]}
         selloTitulo="REGRESO A CASA"
         botonTexto="Ver el gran cierre"
-        onContinuar={() => {
-          fusionar((prev) => ({
-            ...prev,
-            fotos: prev.fotos.includes("Momento final") ? prev.fotos : [...prev.fotos, "Momento final"],
-            fase: "finale",
-          }));
-        }}
+        onContinuar={() => actualizar({ fase: "finale" })}
       />
     );
   }
@@ -240,15 +176,14 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
 
           <div className="cierre-tesoros">
             <div className="tesoro"><span>🛂</span><b>Pasaporte</b><i>4 sellos</i></div>
-            <div className="tesoro"><span>📷</span><b>Álbum</b><i>{totalFotos()} recuerdos</i></div>
             <div className="tesoro"><span>🗺️</span><b>Mapa</b><i>completo</i></div>
             <div className="tesoro"><span>🎒</span><b>Inventario</b><i>listo</i></div>
           </div>
 
           <p style={{ fontWeight: 700 }}>Gracias por ser parte de esta travesía.</p>
           <div className="btn-fila">
-            <button className="btn btn-primario btn-cta" onClick={() => actualizar({ fase: "album_final" })}>
-              📷 Ver mis recuerdos
+            <button className="btn btn-primario btn-cta" onClick={() => actualizar({ fase: "despedida" })}>
+              🎉 Continuar
             </button>
           </div>
         </div>
@@ -256,16 +191,8 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
     );
   }
 
-  if (juego.fase === "album_final") {
-    return <FinalAlbumShowcase onContinuar={() => actualizar({ fase: "despedida" })} />;
-  }
-
   if (juego.fase === "despedida") {
     return <FarewellScreen uid={uid} haptiquenoLabel={haptiquenoLabel} avatarGlyph={avatarGlyph} />;
-  }
-
-  if (juego.fase === "camara_intermedia") {
-    return <AutoCamera onFin={() => actualizar({ fase: "mundo", subfase: "juego" })} />;
   }
 
   if (juego.fase === "actividad") {
@@ -367,7 +294,6 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         <div className="hud-inv">
           <span className="hud-item on" title="Piezas del misterio">🧩 {juego.piezas.length}</span>
           <button className="chip-btn" onClick={() => setOverlay("inventario")}>🎒</button>
-          <button className="chip-btn" onClick={() => setOverlay("album")}>📷 {todasFotos.length}</button>
         </div>
       </div>
 
@@ -395,14 +321,11 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
       </div>
 
       {mensaje && <div className="juego-toast">{mensaje}</div>}
-      {overlay === "album" && <Album fotos={todasFotos} onClose={() => setOverlay(null)} />}
       {overlay === "inventario" && (
         <Inventory
-          recogidos={["ropa", "cargador", "pasaporte", "camara"]}
+          recogidos={["ropa", "cargador", "pasaporte"]}
           llave={true}
           pase={true}
-          fotos={todasFotos}
-          onAbrirAlbum={() => setOverlay("album")}
           onClose={() => setOverlay(null)}
         />
       )}

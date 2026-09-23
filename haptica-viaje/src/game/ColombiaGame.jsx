@@ -1,10 +1,10 @@
 /**
  * ColombiaGame.jsx — ORQUESTADOR de la aventura de Colombia (MVP).
- * Conecta: WORLD/PLAYER (OfficeWorld) · INVENTORY · CAMERA/ALBUM ·
+ * Conecta: WORLD/PLAYER (OfficeWorld) · INVENTORY ·
  * MYSTERY (El mensaje perdido) · QUESTION ENGINE (Datos Generales, 19 oficiales)
  * · PROGRESS/STATE (persistido) · PASSPORT · TRAVEL TRANSITION (reutilizada).
  *
- * Flujo: explorar → recoger 4 objetos → cámara → pistas → código → llave →
+ * Flujo: explorar → recoger 3 objetos → pistas → código → llave →
  * puerta de acceso → Datos Generales (19) → pase → puerta de salida →
  * transición de viaje → pasaporte + sello → llegada a México (próximamente).
  */
@@ -12,13 +12,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import experiencia from "../data/experiencia.json";
 import OfficeWorld from "./OfficeWorld.jsx";
 import Inventory from "./Inventory.jsx";
-import Album from "./Album.jsx";
 import CodePuzzle from "./CodePuzzle.jsx";
 import BoardingPass from "./BoardingPass.jsx";
 import DatosGeneralesMission from "./DatosGeneralesMission.jsx";
 import TransitionScreen from "../components/TransitionScreen.jsx";
 import { OBJETOS_DIBUJO, ITEMS_REQUERIDOS, CODIGO_MISTERIO, PREGUNTA_MISTERIO, PISTA_EXTRA_MISTERIO } from "./officeData.js";
-import { setContextoFoto } from "./album/fotoContexto.js";
 import { INSTRUCCION_JUEGO_TITULO, INSTRUCCION_JUEGO } from "../data/textos.js";
 import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoColombia } from "../state/firestore.js";
 import { conReintento } from "../state/retry.js";
@@ -37,7 +35,6 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
   const [juego, setJuego] = useState(() => ({
     recogidos: init.recogidos || [],
     pistas: init.pistas || [],
-    fotos: init.fotos || [],
     llave: !!init.llave,
     pase: !!init.pase,
     datosDone: !!init.datosDone,
@@ -45,7 +42,7 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
     fase: init.fase || "mundo",
     tipVisto: !!init.tipVisto,
   }));
-  const [overlay, setOverlay] = useState(null); // inventario | album | misterio
+  const [overlay, setOverlay] = useState(null); // inventario | misterio
   const [mensaje, setMensaje] = useState("");
   const toastRef = useRef();
 
@@ -80,7 +77,7 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
 
   const misionTexto = (() => {
     if (juego.recogidos.length < ITEMS_REQUERIDOS.length)
-      return `Misión: Prepara tu viaje — objetos ${juego.recogidos.length}/4`;
+      return `Misión: Prepara tu viaje — objetos ${juego.recogidos.length}/${ITEMS_REQUERIDOS.length}`;
     if (!juego.llave) return "Misión: El mensaje perdido — halla las pistas y abre la caja";
     if (!juego.datosDone) return "Misión: cruza la Puerta de acceso (Datos Generales)";
     return "Ve a la Puerta de salida para iniciar el viaje";
@@ -92,7 +89,6 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
     if (!o) return;
     if (o.tipo === "item") return recoger(o);
     if (o.tipo === "clue") return pista(o);
-    if (o.tipo === "photo") return foto(o);
     if (o.tipo === "safe") return setOverlay("misterio");
     if (o.tipo === "door") return puerta(o);
   }
@@ -108,29 +104,8 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
       toast("Ya registraste esta pista.");
       return;
     }
-    if (o.requiereCamara && !juego.recogidos.includes("camara")) {
-      toast("📷 Necesitas la cámara para registrar el mapa.");
-      return;
-    }
-    const patch = { pistas: [...juego.pistas, { pos: o.pos, texto: o.texto }] };
-    if (o.requiereCamara && !juego.fotos.includes("Mapa de rutas — Bogotá")) {
-      patch.fotos = [...juego.fotos, "Mapa de rutas — Bogotá"];
-    }
-    actualizar(patch);
+    actualizar({ pistas: [...juego.pistas, { pos: o.pos, texto: o.texto }] });
     toast(`🔎 Pista encontrada (${o.pos + 1}/3)`);
-  }
-
-  function foto(o) {
-    if (!juego.recogidos.includes("camara")) {
-      toast("📷 Primero recoge la cámara.");
-      return;
-    }
-    if (juego.fotos.includes(o.foto)) {
-      toast("Ya tienes esa foto en tu álbum.");
-      return;
-    }
-    actualizar({ fotos: [...juego.fotos, o.foto] });
-    toast(`📷 Momento registrado: ${o.foto}`);
   }
 
   function puerta(o) {
@@ -194,11 +169,6 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [juego.fase, juego.dgIndex]);
 
-  // Contexto para la cámara (carpeta del álbum según el momento).
-  useEffect(() => {
-    setContextoFoto({ folderId: "oficina", country: "Colombia", sceneKey: "colombia_oficina", avatar: avatarGlyph });
-  }, [avatarGlyph]);
-
   // ===================== RENDER POR FASE =====================
   if (juego.fase === "datos" && juego.dgIndex < DG_PREGUNTAS.length) {
     return (
@@ -243,8 +213,7 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
           <h1>¡Aterrizaste en México!</h1>
           <p className="sub">
             Completaste la aventura de Colombia: preparaste tu maleta, resolviste el misterio,
-            registraste el documento de Datos Generales y despegaste. Tu álbum guarda{" "}
-            {juego.fotos.length} {juego.fotos.length === 1 ? "momento" : "momentos"}.
+            registraste el documento de Datos Generales y despegaste.
           </p>
           {onFin && (
             <div className="btn-fila">
@@ -290,7 +259,6 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
           {juego.llave && <span className="hud-item on" title="Llave">🗝️</span>}
           {juego.pase && <span className="hud-item on" title="Pase">🎫</span>}
           <button className="chip-btn" onClick={() => setOverlay("inventario")}>🎒</button>
-          <button className="chip-btn" onClick={() => setOverlay("album")}>📷 {juego.fotos.length}</button>
         </div>
       </div>
 
@@ -303,12 +271,9 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
           recogidos={juego.recogidos}
           llave={juego.llave}
           pase={juego.pase}
-          fotos={juego.fotos}
-          onAbrirAlbum={() => setOverlay("album")}
           onClose={() => setOverlay(null)}
         />
       )}
-      {overlay === "album" && <Album fotos={juego.fotos} onClose={() => setOverlay(null)} />}
       {overlay === "misterio" && (
         <CodePuzzle
           titulo="El mensaje perdido"

@@ -1,19 +1,17 @@
 /**
  * ChileGame.jsx — ZONA 3: visita a Angélica ("Boss") en Chile.
- * Reutiliza todos los sistemas (mundo, player, inventario, cámara, álbum,
+ * Reutiliza todos los sistemas (mundo, player, inventario,
  * motor de preguntas, pasaporte, transiciones, NPC, vehículo). Integra las 31
  * preguntas de "Factores Psicosociales Extralaborales" (P051–P081, ORDEN oficial)
  * repartidas en 3 excursiones. Lorenzo, Lila y la memoria de Botas dan alma a Chile.
  *
  * Fases: aterrizaje → sello → angelica → mundo(hub) → carrito → excursion → completado.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import experiencia from "../data/experiencia.json";
 import OfficeWorld from "./OfficeWorld.jsx";
-import { setContextoFoto } from "./album/fotoContexto.js";
 import Confetti from "../components/Confetti.jsx";
 import Inventory from "./Inventory.jsx";
-import Album from "./Album.jsx";
 import BoardingPass from "./BoardingPass.jsx";
 import MissionQuestions from "./MissionQuestions.jsx";
 import NPCDialog from "./NPCDialog.jsx";
@@ -39,18 +37,13 @@ function excIndexDe(qGlobal) {
 
 export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph = "🍊", onFin }) {
   const init = usuario?.juego_chile || {};
-  const fotosPrevias = [
-    ...(usuario?.juego_colombia?.fotos || []),
-    ...(usuario?.juego_mexico?.fotos || []),
-  ];
   const [juego, setJuego] = useState(() => ({
     fase: init.fase || "aterrizaje",
     qGlobal: init.qGlobal || 0,
     excursionesHechas: init.excursionesHechas || [],
-    fotos: init.fotos || [],
     completado: !!init.completado,
   }));
-  const [overlay, setOverlay] = useState(null); // inventario | album | botas
+  const [overlay, setOverlay] = useState(null); // inventario | botas
   const [mensaje, setMensaje] = useState("");
   const toastRef = useRef();
 
@@ -66,25 +59,8 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
       return next;
     });
   }
-  function agregarFoto(nombre) {
-    setJuego((prev) => {
-      if (prev.fotos.includes(nombre)) return prev;
-      const next = { ...prev, fotos: [...prev.fotos, nombre] };
-      setJuegoChile(uid, next).catch(() => {});
-      return next;
-    });
-  }
 
   const excActual = excIndexDe(juego.qGlobal);
-  const todasFotos = [...fotosPrevias, ...juego.fotos];
-
-  // Contexto para la cámara (carpeta del álbum según el momento).
-  useEffect(() => {
-    const map = { aterrizaje: "llegada_cl", sello: "llegada_cl" };
-    const folderId = map[juego.fase] || "angelica";
-    const sceneKey = folderId === "angelica" ? "angelica" : "chile";
-    setContextoFoto({ folderId, country: "Chile", sceneKey, avatar: avatarGlyph });
-  }, [juego.fase, avatarGlyph]);
 
   const objetos = useMemo(() => {
     return OBJETOS_CL.map((o) => ({
@@ -101,10 +77,9 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
 
   function onInteract(id) {
     if (id === "angelica") return toast("👩🏼 Angélica: cuando quieras, subimos a la van 🚐 y recorremos.");
-    if (id === "lorenzo") { agregarFoto("Con Lorenzo"); return toast("🐾 Lorenzo te ha encontrado."); }
-    if (id === "lila") { agregarFoto("Con Lila"); return toast("🐾 Lila quiere acompañarte."); }
+    if (id === "lorenzo") return toast("🐾 Lorenzo te ha encontrado.");
+    if (id === "lila") return toast("🐾 Lila quiere acompañarte.");
     if (id === "botas") return setOverlay("botas");
-    if (id === "fotoCL") { agregarFoto("Un recuerdo de Chile"); return toast("📷 Momento registrado: Un recuerdo de Chile"); }
     if (id === "carrito") {
       if (juego.completado) return toast("Ya recorrimos Chile 💚. Ve a la Salida 🚪.");
       return actualizar({ fase: "carrito" });
@@ -135,7 +110,6 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
   }
   async function onCompleteExc() {
     const exc = EXCURSIONES_CL[excActual];
-    agregarFoto(exc.foto);
     const hechas = juego.excursionesHechas.includes(excActual)
       ? juego.excursionesHechas
       : [...juego.excursionesHechas, excActual];
@@ -188,11 +162,7 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
         color="#00BCA0"
         lineas={ANGELICA_BIENVENIDA}
         botonFinal="Explorar Chile ⛰️"
-        onFin={() => {
-          agregarFoto("Llegada a Chile");
-          agregarFoto("Con Angélica");
-          actualizar({ fase: "mundo" });
-        }}
+        onFin={() => actualizar({ fase: "mundo" })}
       />
     );
   }
@@ -282,7 +252,6 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
             );
           })}
           <button className="chip-btn" onClick={() => setOverlay("inventario")}>🎒</button>
-          <button className="chip-btn" onClick={() => setOverlay("album")}>📷 {todasFotos.length}</button>
         </div>
       </div>
 
@@ -301,30 +270,18 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
 
       {overlay === "inventario" && (
         <Inventory
-          recogidos={["ropa", "cargador", "pasaporte", "camara"]}
+          recogidos={["ropa", "cargador", "pasaporte"]}
           llave={true}
           pase={true}
-          fotos={todasFotos}
-          onAbrirAlbum={() => setOverlay("album")}
           onClose={() => setOverlay(null)}
         />
       )}
-      {overlay === "album" && <Album fotos={todasFotos} onClose={() => setOverlay(null)} />}
-      {overlay === "botas" && (
-        <BotasMemoria
-          onRegistrar={() => {
-            agregarFoto(BOTAS_MEMORIA.foto);
-            toast("📷 Momento registrado: una historia que sigue viajando.");
-            setOverlay(null);
-          }}
-          onClose={() => setOverlay(null)}
-        />
-      )}
+      {overlay === "botas" && <BotasMemoria onClose={() => setOverlay(null)} />}
     </div>
   );
 }
 
-function BotasMemoria({ onRegistrar, onClose }) {
+function BotasMemoria({ onClose }) {
   return (
     <div className="modal-fondo" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -334,7 +291,6 @@ function BotasMemoria({ onRegistrar, onClose }) {
           <p key={i} style={{ textAlign: "center" }}>{l}</p>
         ))}
         <div className="btn-fila">
-          <button className="btn btn-primario" onClick={onRegistrar}>📷 Registrar este momento</button>
           <button className="btn btn-secundario" onClick={onClose}>Cerrar</button>
         </div>
       </div>

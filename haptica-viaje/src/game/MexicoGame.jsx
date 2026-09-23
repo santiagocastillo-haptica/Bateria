@@ -1,19 +1,17 @@
 /**
  * MexicoGame.jsx — ZONA 2: aventura de México con Mariaca.
  * Reutiliza los sistemas de Colombia: OfficeWorld (mundo/player), Inventory,
- * Album, BoardingPass (pasaporte), MissionQuestions (motor oficial) y la
+ * BoardingPass (pasaporte), MissionQuestions (motor oficial) y la
  * persistencia. Integra las 31 preguntas del Cuestionario de Estrés (P020–P050,
  * en su ORDEN oficial) repartidas narrativamente en 3 excursiones.
  *
  * Fases: aterrizaje → sello → mariaca → mundo(hub) → carrito → excursion → completado.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import experiencia from "../data/experiencia.json";
 import OfficeWorld from "./OfficeWorld.jsx";
-import { setContextoFoto } from "./album/fotoContexto.js";
 import Confetti from "../components/Confetti.jsx";
 import Inventory from "./Inventory.jsx";
-import Album from "./Album.jsx";
 import BoardingPass from "./BoardingPass.jsx";
 import MissionQuestions from "./MissionQuestions.jsx";
 import NPCDialog from "./NPCDialog.jsx";
@@ -38,15 +36,13 @@ function excIndexDe(qGlobal) {
 
 export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph = "🍊", onFin }) {
   const init = usuario?.juego_mexico || {};
-  const fotosColombia = usuario?.juego_colombia?.fotos || [];
   const [juego, setJuego] = useState(() => ({
     fase: init.fase || "aterrizaje",
     qGlobal: init.qGlobal || 0,
     excursionesHechas: init.excursionesHechas || [],
-    fotos: init.fotos || [],
     completado: !!init.completado,
   }));
-  const [overlay, setOverlay] = useState(null); // inventario | album
+  const [overlay, setOverlay] = useState(null); // inventario
   const [mensaje, setMensaje] = useState("");
   const toastRef = useRef();
 
@@ -62,26 +58,8 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
       return next;
     });
   }
-  function agregarFoto(nombre) {
-    setJuego((prev) => {
-      if (prev.fotos.includes(nombre)) return prev;
-      const next = { ...prev, fotos: [...prev.fotos, nombre] };
-      setJuegoMexico(uid, next).catch(() => {});
-      return next;
-    });
-  }
 
   const excActual = excIndexDe(juego.qGlobal);
-  const todasFotos = [...fotosColombia, ...juego.fotos];
-
-  // Contexto para la cámara (carpeta del álbum según el momento).
-  useEffect(() => {
-    // La carpeta "Con Mariaca" se retiró del álbum; su momento cae en el
-    // recorrido general de México.
-    const map = { aterrizaje: "llegada_mx", sello: "llegada_mx", mariaca: "recorrido_mx" };
-    const folderId = map[juego.fase] || "recorrido_mx";
-    setContextoFoto({ folderId, country: "México", sceneKey: "mexico", avatar: avatarGlyph });
-  }, [juego.fase, avatarGlyph]);
 
   // --- Objetos del hub ---
   const objetos = useMemo(() => {
@@ -99,10 +77,6 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
   // --- Interacciones del hub ---
   function onInteract(id) {
     if (id === "mariaca") return toast("👩🏻 Mariaca: ¡sube al carrito 🛺 para la siguiente parada!");
-    if (id === "fotoMX") {
-      agregarFoto("Momento en México");
-      return toast("📷 Momento registrado: Momento en México");
-    }
     if (id === "carrito") {
       if (juego.completado) return toast("Ya recorrimos todo México 🎉. Ve a la Salida 🚪.");
       return actualizar({ fase: "carrito" });
@@ -135,7 +109,6 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
   }
   async function onCompleteExc() {
     const exc = EXCURSIONES[excActual];
-    agregarFoto(exc.foto);
     const hechas = juego.excursionesHechas.includes(excActual)
       ? juego.excursionesHechas
       : [...juego.excursionesHechas, excActual];
@@ -181,10 +154,7 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
         color="#E5A000"
         lineas={MARIACA_BIENVENIDA}
         botonFinal="Explorar México 🌮"
-        onFin={() => {
-          agregarFoto("Llegada a México");
-          actualizar({ fase: "mundo" });
-        }}
+        onFin={() => actualizar({ fase: "mundo" })}
       />
     );
   }
@@ -266,7 +236,6 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
             );
           })}
           <button className="chip-btn" onClick={() => setOverlay("inventario")}>🎒</button>
-          <button className="chip-btn" onClick={() => setOverlay("album")}>📷 {todasFotos.length}</button>
         </div>
       </div>
 
@@ -285,15 +254,12 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
 
       {overlay === "inventario" && (
         <Inventory
-          recogidos={["ropa", "cargador", "pasaporte", "camara"]}
+          recogidos={["ropa", "cargador", "pasaporte"]}
           llave={true}
           pase={true}
-          fotos={todasFotos}
-          onAbrirAlbum={() => setOverlay("album")}
           onClose={() => setOverlay(null)}
         />
       )}
-      {overlay === "album" && <Album fotos={todasFotos} onClose={() => setOverlay(null)} />}
     </div>
   );
 }

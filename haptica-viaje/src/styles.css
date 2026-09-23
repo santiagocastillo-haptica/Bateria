@@ -409,12 +409,6 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
 .inv-chip.on { border-color: var(--naranja-haptica); color: var(--negro-tinta); }
 button.inv-chip { cursor: pointer; }
 
-/* Álbum */
-.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
-.foto { border: 1px solid var(--gris-200); border-radius: var(--radius-0); overflow: hidden; }
-.foto-marco { background: var(--negro-tinta); color: var(--blanco); font-size: 2rem; text-align: center; padding: var(--space-4) 0; }
-.foto-pie { font-size: var(--fs-small); padding: var(--space-2); text-align: center; }
-
 /* Misterio */
 .pistas { text-align: left; margin: var(--space-2) 0 var(--space-4); }
 .pistas-titulo { font-weight: 800; margin-bottom: 6px; }
@@ -552,82 +546,6 @@ button.inv-chip { cursor: pointer; }
 .estacion-estado { font-size: var(--fs-label); color: var(--gris-600); }
 .estacion-btn { width: auto; padding: var(--space-3) var(--space-4); }
 
-/* ---------- Cámara (Modo Cámara + botón flotante) ---------- */
-.camara-fab {
-  position: fixed; right: var(--space-4); bottom: var(--space-4); z-index: 45;
-  width: 56px; height: 56px; border-radius: var(--radius-0); border: none; cursor: pointer;
-  background: var(--naranja-haptica); color: var(--blanco); font-size: 1.6rem; box-shadow: var(--shadow-raised);
-}
-.camara-fab:hover { background: var(--naranja-600); }
-.camara-modo {
-  position: fixed; inset: 0; z-index: 70; background: var(--negro-tinta);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--space-3); padding: var(--space-4); color: var(--blanco);
-}
-.camara-top {
-  position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center;
-  justify-content: space-between; padding: var(--space-3) var(--space-4); font-weight: 800;
-}
-.camara-visor { position: relative; border-radius: var(--radius-0); overflow: hidden; }
-.camara-video {
-  width: 280px; height: 280px; max-width: 80vw; max-height: 80vw; object-fit: cover;
-  border-radius: var(--radius-0); background: var(--negro-tinta); display: block;
-  transform: scaleX(-1); /* espejo, como un selfie */
-}
-.auto-camara .camara-video { width: 240px; height: 240px; max-width: 70vw; max-height: 70vw; }
-.auto-camara-pose {
-  font-weight: 800; font-size: var(--fs-lead); color: var(--blanco); text-align: center;
-  letter-spacing: 0.02em;
-}
-.auto-camara-aviso {
-  background: var(--arena); color: var(--negro-tinta); border-radius: var(--radius-0);
-  padding: var(--space-2) var(--space-3); font-size: var(--fs-small); font-weight: 700; text-align: center; max-width: 320px;
-}
-.camara-esquinas .esq { position: absolute; width: 22px; height: 22px; border: 3px solid rgb(255 255 255 / .9); }
-.camara-esquinas .e1 { top: 8px; left: 8px; border-right: none; border-bottom: none; }
-.camara-esquinas .e2 { top: 8px; right: 8px; border-left: none; border-bottom: none; }
-.camara-esquinas .e3 { bottom: 8px; left: 8px; border-right: none; border-top: none; }
-.camara-esquinas .e4 { bottom: 8px; right: 8px; border-left: none; border-top: none; }
-.camara-flash { position: absolute; inset: 0; background: var(--blanco); z-index: 5; animation: flash 0.4s ease-out; }
-@keyframes flash { 0% { opacity: 0.95; } 100% { opacity: 0; } }
-.camara-capturado {
-  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-  background: rgb(0 0 0 / .65); padding: 6px var(--space-4); border-radius: var(--radius-0); font-weight: 800; font-size: var(--fs-small);
-}
-.camara-hint { color: rgb(255 255 255 / .85); font-size: var(--fs-small); }
-.camara-recuerdo { text-align: center; }
-.camara-recuerdo-folder { font-weight: 800; }
-.camara-recuerdo-caption { opacity: 0.9; font-style: italic; margin-top: 4px; }
-
-/* ---------- Escena/foto estilizada ---------- */
-.escena-foto {
-  border-radius: var(--radius-0); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
-}
-.escena-foto-elementos { display: flex; align-items: flex-end; gap: 6px; }
-.escena-foto-avatar { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
-.escena-foto-real { background: var(--negro-tinta); }
-.escena-foto-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: var(--radius-0); }
-
-/* ---------- Álbum: carpetas / fotos / ampliada ---------- */
-.album-modal { max-width: 760px; max-height: 86vh; overflow-y: auto; }
-.album-carpetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
-.carpeta {
-  border: 1.5px solid var(--gris-200); background: var(--blanco); border-radius: var(--radius-0); padding: var(--space-2);
-  cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px;
-}
-.carpeta.tiene { border-color: var(--naranja-haptica); }
-.carpeta-mini { border-radius: var(--radius-0); overflow: hidden; }
-.carpeta-nombre { font-weight: 800; font-size: var(--fs-small); }
-.carpeta-conteo { font-size: var(--fs-label); color: var(--gris-600); }
-.carpeta.tiene .carpeta-conteo { color: var(--naranja-700); font-weight: 700; }
-
-.album-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); margin: var(--space-2) 0 var(--space-4); }
-.album-foto { border: none; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.album-foto-pie { font-size: var(--fs-label); color: var(--gris-600); }
-.foto-ampliada { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); }
-.foto-ampliada-caption { font-style: italic; font-weight: 700; text-align: center; }
-.foto-ampliada-sub { font-size: var(--fs-small); color: var(--gris-600); }
-
 /* ---------- Aterrizaje ---------- */
 .landing { background: linear-gradient(180deg, var(--menta), var(--arena)); }
 .landing-cielo { position: relative; width: 100%; max-width: 520px; height: 200px; margin: 0 auto; overflow: hidden; }
@@ -725,17 +643,6 @@ button.inv-chip { cursor: pointer; }
   100% { transform: translateY(105vh) rotate(540deg); opacity: 0.9; }
 }
 
-/* ---------- Cámara automática ---------- */
-.auto-camara {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--space-3); background: var(--negro-tinta); color: var(--blanco); min-height: 70vh; padding: var(--space-5);
-}
-.auto-cuenta {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 4rem; font-weight: 900; color: var(--blanco); text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-.auto-camara-pie { font-weight: 800; font-size: var(--fs-small); opacity: 0.9; }
-
 /* ---------- Gran cierre ---------- */
 .cierre-grande { max-width: 680px; }
 .cierre-emoji { font-size: 3.2rem; }
@@ -756,11 +663,6 @@ button.inv-chip { cursor: pointer; }
 .tesoro span { font-size: 1.6rem; }
 .tesoro b { font-size: var(--fs-small); }
 .tesoro i { font-style: normal; font-size: var(--fs-label); color: var(--gris-600); }
-.cierre-album { max-width: 760px; }
-.cierre-album-total {
-  display: inline-block; background: var(--naranja-100); color: var(--naranja-700);
-  font-weight: 800; padding: 6px var(--space-4); border-radius: var(--radius-0); margin-bottom: var(--space-3);
-}
 
 /* ---------- Despedida (post-créditos) ---------- */
 .despedida { background: linear-gradient(180deg, var(--negro-tinta), var(--verde-petroleo) 55%, var(--arena)); }

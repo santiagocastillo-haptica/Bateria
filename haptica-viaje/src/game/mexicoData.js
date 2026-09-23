@@ -23,13 +23,11 @@ export const MUEBLES_MX = [
  * Objetos del HUB de México.
  *  - mariaca : NPC (volver a hablar)
  *  - carrito : inicia la siguiente excursión pendiente
- *  - foto    : registrar momento (álbum)
  *  - salida  : rumbo a Chile (se abre al completar México)
  */
 export const OBJETOS_MX = [
   { id: "mariaca", tipo: "npc", emoji: "👩🏻", nombre: "Mariaca", x: 180, y: 150 },
   { id: "carrito", tipo: "carrito", emoji: "🛺", nombre: "Carrito de excursión", x: 520, y: 150 },
-  { id: "fotoMX", tipo: "photo", emoji: "🎉", nombre: "Plaza de México", foto: "Momento en México", x: 360, y: 96 },
   { id: "salidaMX", tipo: "salida", emoji: "🚪", nombre: "Salida hacia Chile", x: 360, y: 30 },
 ];
 
@@ -43,8 +41,7 @@ export const EXCURSIONES = [
     titulo: "Mercado y sabores",
     parada: "Primera parada",
     color: "#E5A000", // ámbar
-    npc: "¡Haptiqueño! Empezamos por el mercado. Antes de probar los tacos, acompáñame a registrar algo.",
-    foto: "Mercado con Mariaca — México",
+    npc: "¡Haptiqueño! Empezamos por el mercado. Antes de probar los tacos, acompáñame un momento.",
   },
   {
     id: 1,
@@ -53,7 +50,6 @@ export const EXCURSIONES = [
     parada: "Siguiente parada 🎡",
     color: "#FA4616", // naranja Háptica
     npc: "¡A la feria! Antes de subir a la rueda de la fortuna, sigamos con lo nuestro.",
-    foto: "Feria en México",
   },
   {
     id: 2,
@@ -62,7 +58,6 @@ export const EXCURSIONES = [
     parada: "Última parada 🏛️",
     color: "#006663", // verde petróleo
     npc: "El centro histórico nos espera. Terminemos juntos este recorrido por México.",
-    foto: "Centro histórico — México",
   },
 ];
 

@@ -1,11 +1,9 @@
 /**
  * TransitionScreen.jsx — transición entre países como secuencia de viaje.
  * OFICINA → VAN → AEROPUERTO → AVIÓN → destino. Usa el objeto de transición de
- * experiencia.json (nombre + momento). Al iniciar el viaje se dispara la
- * cámara automática (recuerdo del trayecto).
+ * experiencia.json (nombre + momento).
  */
 import { useEffect, useState } from "react";
-import AutoCamera from "../game/album/AutoCamera.jsx";
 
 const PASOS = [
   { ico: "🏢", label: "Oficina" },
@@ -27,18 +25,14 @@ export default function TransitionScreen({ nombre, momento, onContinuar }) {
   const { destino, emoji } = destinoDe(nombre);
   const total = PASOS.length + 1; // + destino
   const [activo, setActivo] = useState(0);
-  const [foto, setFoto] = useState(true); // cámara automática al iniciar el viaje
 
   useEffect(() => {
-    if (foto) return;
     setActivo(0);
     const t = setInterval(() => {
       setActivo((a) => (a < total - 1 ? a + 1 : a));
     }, 650);
     return () => clearInterval(t);
-  }, [nombre, foto, total]);
-
-  if (foto) return <AutoCamera onFin={() => setFoto(false)} />;
+  }, [nombre, total]);
 
   return (
     <div className="pantalla">

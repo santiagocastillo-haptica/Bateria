@@ -24,7 +24,6 @@ export const MUEBLES_CL = [
  *  - angelica : NPC (hilo conductor)
  *  - lorenzo/lila : mascotas interactivas (se mueven un poco: wander)
  *  - botas : memoria coleccionable (cariño, no tristeza)
- *  - foto  : registrar momento (álbum)
  *  - carrito : inicia la siguiente excursión
  *  - salida  : rumbo al regreso a Colombia (al completar Chile)
  */
@@ -33,7 +32,6 @@ export const OBJETOS_CL = [
   { id: "lorenzo", tipo: "pet", emoji: "🐶", nombre: "Lorenzo", x: 130, y: 330, wander: true },
   { id: "lila", tipo: "pet", emoji: "🐕", nombre: "Lila", x: 255, y: 330, wander: true },
   { id: "botas", tipo: "memoria", emoji: "🐾", nombre: "Memoria de Botas", x: 610, y: 320 },
-  { id: "fotoCL", tipo: "photo", emoji: "⛰️", nombre: "Mirador de Chile", foto: "Un recuerdo de Chile", x: 360, y: 96 },
   { id: "carrito", tipo: "carrito", emoji: "🚐", nombre: "Van para el recorrido", x: 520, y: 150 },
   { id: "salidaCL", tipo: "salida", emoji: "🚪", nombre: "Rumbo a Colombia", x: 360, y: 30 },
 ];
@@ -48,7 +46,6 @@ export const EXCURSIONES_CL = [
     parada: "Primera parada",
     color: "#00BCA0", // menta
     npc: "Me alegra que podamos hacer este recorrido. Cuéntame, ¿cómo has estado?",
-    foto: "Paseo con Angélica — Chile",
   },
   {
     id: 1,
@@ -57,7 +54,6 @@ export const EXCURSIONES_CL = [
     parada: "Siguiente parada",
     color: "#006663", // verde petróleo
     npc: "Hay cosas que desde lejos no siempre podemos ver. Sigamos un poco más.",
-    foto: "Mirador de Chile",
   },
   {
     id: 2,
@@ -66,7 +62,6 @@ export const EXCURSIONES_CL = [
     parada: "Última parada",
     color: "#6E7677", // gris-600
     npc: "Gracias por ayudarme a conocer mejor cómo está el equipo.",
-    foto: "Atardecer en Chile",
   },
 ];
 
@@ -85,5 +80,4 @@ export const BOTAS_MEMORIA = {
     "Botas fue parte de los primeros momentos de Háptica.",
     "Algunas historias permanecen con nosotros y siguen viajando.",
   ],
-  foto: "Memoria de Botas",
 };
