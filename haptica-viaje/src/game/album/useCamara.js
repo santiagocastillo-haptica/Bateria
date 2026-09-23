@@ -29,10 +29,11 @@ export function useCamara() {
           return;
         }
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
+        // OJO: en este punto el <video> normalmente NO existe todavía en el
+        // DOM (se monta condicionalmente recién cuando `estado` pasa a
+        // "lista", en el siguiente render), así que `videoRef.current` suele
+        // ser null aquí. La conexión real del stream ocurre en el efecto de
+        // abajo, que corre DESPUÉS de que ese render monte el <video>.
         setEstado("lista");
       })
       .catch((error) => {
@@ -49,6 +50,16 @@ export function useCamara() {
       streamRef.current = null;
     };
   }, []);
+
+  // Conecta el stream al <video> una vez que YA está montado en el DOM
+  // (justo cuando `estado` se vuelve "lista" y el consumidor del hook lo
+  // renderiza). Sin este efecto, el video quedaba mudo/negro y siempre se
+  // veía el dibujo ilustrado de reemplazo en vez de la cámara real.
+  useEffect(() => {
+    if (estado !== "lista" || !videoRef.current || !streamRef.current) return;
+    videoRef.current.srcObject = streamRef.current;
+    videoRef.current.play().catch(() => {});
+  }, [estado]);
 
   /** Dibuja el cuadro actual del video en un canvas y lo exporta a JPEG. */
   function capturarFrame() {
