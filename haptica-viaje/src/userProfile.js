@@ -8,6 +8,7 @@
  */
 
 import { nombreDesdeCorreo } from "./identidad.js";
+import { colaboradorPorCorreo } from "./data/colaboradores.js";
 
 /** Glifos de avatar por tipo (conservan la identidad cálida del Haptiqueño). */
 export const AVATAR_GLYPH = {
@@ -32,13 +33,18 @@ export const CORRESPONDENCIAS = {
 
 /**
  * Resuelve el perfil a partir del usuario autenticado.
+ * Si el correo está en el roster de colaboradores (data/colaboradores.js), el
+ * nombre visible es su SEUDÓNIMO (como pidieron que los llamen); si no está
+ * en el roster, se usa el nombre de Google o el derivado del correo.
  * @param {{email?:string, displayName?:string}} user
- * @returns {{email:string, displayName:string, avatarType:string, avatarId:string, avatarGlyph:string}}
+ * @returns {{email:string, displayName:string, avatarType:string, avatarId:string, avatarGlyph:string, rol:string}}
  */
 export function resolverPerfil(user) {
   const email = (user?.email || "").toLowerCase();
-  // El nombre visible sale del perfil de Google o del correo corporativo.
-  const displayName = (user?.displayName || "").trim() || nombreDesdeCorreo(email);
+  const colaborador = colaboradorPorCorreo(email);
+  // El nombre visible: seudónimo del roster > nombre de Google > derivado del correo.
+  const displayName =
+    colaborador?.seudonimo || (user?.displayName || "").trim() || nombreDesdeCorreo(email);
   const avatarType = CORRESPONDENCIAS[email] || "neutral";
   return {
     email,
@@ -46,5 +52,6 @@ export function resolverPerfil(user) {
     avatarType,
     avatarId: `${avatarType}-01`,
     avatarGlyph: AVATAR_GLYPH[avatarType] || AVATAR_GLYPH.neutral,
+    rol: colaborador?.rol || "Usuario",
   };
 }

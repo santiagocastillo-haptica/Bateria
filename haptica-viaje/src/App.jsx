@@ -329,7 +329,12 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
     <div className="app">
       {mostrarTopbar && (
         <div className="topbar">
-          <span className="marca">🍊 {etiquetaHaptiqueno}</span>
+          <span className="marca">
+            🍊 {etiquetaHaptiqueno}
+            {perfil.rol === "Administrador" && (
+              <span className="badge activo" style={{ marginLeft: 8 }}>Admin</span>
+            )}
+          </span>
           <div className="acciones">
             <span className="chip-btn" style={{ cursor: "default" }}>🔑 {llaves.length}</span>
             <button className="chip-btn" onClick={() => setMostrarPasaporte(true)}>
