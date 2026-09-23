@@ -161,16 +161,27 @@ export async function guardarRespuesta(uid, pregunta, opcionSeleccionada, meta =
   });
 }
 
-export async function getRespuestasIds(uid) {
-  if (MODO_DEMO) return demo.getRespuestasIds(uid);
-  const snap = await getDocs(collection(db, "usuarios", uid, "respuestas"));
-  return new Set(snap.docs.map((d) => d.id));
+/**
+ * Existencia de un conjunto CONOCIDO de preguntas (las de un bloque).
+ * IMPORTANTE: se hace con getDoc() individuales, NUNCA con una consulta de
+ * lista sobre toda la subcolección `respuestas`. Firestore rechaza una
+ * consulta de lista completa si sus reglas de seguridad no pueden garantizar
+ * que TODOS los documentos que existan en la colección serían legibles (nue-
+ * stras reglas exigen la llave previa por documento vía `puertaAbierta`, así
+ * que preguntas de bloques posteriores harían fallar la consulta entera con
+ * permission-denied). Un getDoc() por ID sí se evalúa documento a documento,
+ * sin ese problema.
+ */
+async function idsRespondidos(uid, ids) {
+  const snaps = await Promise.all(
+    ids.map((id) => getDoc(doc(db, "usuarios", uid, "respuestas", id)))
+  );
+  return snaps.every((s) => s.exists());
 }
 
 export async function otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave) {
   if (MODO_DEMO) return demo.otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave);
-  const existentes = await getRespuestasIds(uid);
-  const completo = idsBloque.every((id) => existentes.has(id));
+  const completo = await idsRespondidos(uid, idsBloque);
   if (!completo) return false;
   await updateDoc(doc(db, "usuarios", uid), {
     "progreso.llaves_obtenidas": arrayUnion(llave),
@@ -187,16 +198,17 @@ export async function otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave) {
  */
 export async function repararLlaves(uid, bloques) {
   if (MODO_DEMO) return; // el modo demo no tuvo este bug (sin reglas de puerta)
-  const existentes = await getRespuestasIds(uid);
   for (const b of bloques) {
-    if (b.preguntas.every((id) => existentes.has(id))) {
-      try {
+    try {
+      const completo = await idsRespondidos(uid, b.preguntas);
+      if (completo) {
         await updateDoc(doc(db, "usuarios", uid), {
           "progreso.llaves_obtenidas": arrayUnion(b.llave),
         });
-      } catch (_) {
-        // Si esta llave en particular falla, seguimos con las demás.
       }
+    } catch (_) {
+      // Si esta llave en particular falla (ej. bloque aún bloqueado para
+      // leer), seguimos con las demás.
     }
   }
 }
