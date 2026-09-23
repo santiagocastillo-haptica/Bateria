@@ -132,8 +132,15 @@ export function getAlbum() {
   return album;
 }
 
-/** Captura manual desde la cámara. Guarda en la carpeta del contexto actual. */
-export function capturar({ folderId, caption, sceneKey, country, activity }) {
+/**
+ * Captura manual desde la cámara. Guarda en la carpeta del contexto actual.
+ * `dataUrl` es opcional: cuando la cámara real del dispositivo pudo tomar la
+ * foto, aquí viaja la imagen real (canvas.toDataURL). Si no hay cámara
+ * disponible (permiso denegado, navegador sin soporte), se omite y el
+ * momento se guarda igual con la "escena" estilizada de siempre — no rompe
+ * la compatibilidad con lo ya guardado.
+ */
+export function capturar({ folderId, caption, sceneKey, country, activity, dataUrl }) {
   const album = cargar();
   const folder = FOLDER_BY_ID[folderId] || FOLDER_BY_ID.otros;
   album[folder.id] = album[folder.id] || [];
@@ -147,6 +154,7 @@ export function capturar({ folderId, caption, sceneKey, country, activity }) {
     sceneKey: sceneKey || folder.sceneKey,
     caption: caption || folder.caption,
     ts: Date.now(),
+    ...(dataUrl ? { dataUrl } : {}),
   };
   album[folder.id].push(foto);
   guardar(album);

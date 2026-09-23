@@ -504,6 +504,26 @@ button.inv-chip { cursor: pointer; }
 .dialogo-punto { width: 8px; height: 8px; border-radius: var(--radius-0); background: var(--gris-200); }
 .dialogo-punto.activo { background: var(--naranja-haptica); }
 
+/* ---------- Avatar de Santi (gafas, sin asset nuevo) ----------
+   El emoji genérico no trae una versión "con gafas" que soporte tono de
+   piel, así que se dibujan con CSS (cuadradas, sin radius, tinta de marca)
+   sobre el glifo. `.avatar-santi-gafas` envuelve el emoji; el span hijo
+   `.avatar-santi-gafas-lentes` es el puente, y sus ::before/::after dibujan
+   los dos lentes a los lados. */
+.avatar-santi-gafas { position: relative; display: inline-block; line-height: 1; }
+.avatar-santi-gafas-lentes {
+  position: absolute; left: 50%; top: 38%; width: 0.3em; height: 0.03em;
+  background: var(--negro-tinta); transform: translate(-50%, -50%);
+}
+.avatar-santi-gafas-lentes::before,
+.avatar-santi-gafas-lentes::after {
+  content: ""; position: absolute; top: 50%; width: 0.3em; height: 0.22em;
+  border: 0.045em solid var(--negro-tinta); border-radius: var(--radius-0);
+  background: rgb(255 255 255 / .15); transform: translateY(-50%);
+}
+.avatar-santi-gafas-lentes::before { right: 100%; }
+.avatar-santi-gafas-lentes::after { left: 100%; }
+
 /* ---------- Carrito ---------- */
 .carril { position: relative; height: 90px; margin: var(--space-4) 0; overflow: hidden; }
 .carril-linea {
@@ -569,6 +589,20 @@ button.inv-chip { cursor: pointer; }
   justify-content: space-between; padding: var(--space-3) var(--space-4); font-weight: 800;
 }
 .camara-visor { position: relative; border-radius: var(--radius-0); overflow: hidden; }
+.camara-video {
+  width: 280px; height: 280px; max-width: 80vw; max-height: 80vw; object-fit: cover;
+  border-radius: var(--radius-0); background: var(--negro-tinta); display: block;
+  transform: scaleX(-1); /* espejo, como un selfie */
+}
+.auto-camara .camara-video { width: 240px; height: 240px; max-width: 70vw; max-height: 70vw; }
+.auto-camara-pose {
+  font-weight: 800; font-size: var(--fs-lead); color: var(--blanco); text-align: center;
+  letter-spacing: 0.02em;
+}
+.auto-camara-aviso {
+  background: var(--arena); color: var(--negro-tinta); border-radius: var(--radius-0);
+  padding: var(--space-2) var(--space-3); font-size: var(--fs-small); font-weight: 700; text-align: center; max-width: 320px;
+}
 .camara-esquinas .esq { position: absolute; width: 22px; height: 22px; border: 3px solid rgb(255 255 255 / .9); }
 .camara-esquinas .e1 { top: 8px; left: 8px; border-right: none; border-bottom: none; }
 .camara-esquinas .e2 { top: 8px; right: 8px; border-left: none; border-bottom: none; }
@@ -591,6 +625,8 @@ button.inv-chip { cursor: pointer; }
 }
 .escena-foto-elementos { display: flex; align-items: flex-end; gap: 6px; }
 .escena-foto-avatar { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+.escena-foto-real { background: var(--negro-tinta); }
+.escena-foto-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: var(--radius-0); }
 
 /* ---------- Álbum: carpetas / fotos / ampliada ---------- */
 .album-modal { max-width: 760px; max-height: 86vh; overflow-y: auto; }
@@ -639,6 +675,27 @@ button.inv-chip { cursor: pointer; }
   font-size: var(--fs-small); font-weight: 800; padding: var(--space-4) var(--space-6);
   box-shadow: var(--shadow-raised);
   letter-spacing: 0.12em;
+}
+
+/* ---------- Botón "Finalizar experiencia" (cierre explícito, Sección 7) ---------- */
+.btn-finalizar {
+  animation: finalizar-entrada var(--dur-screen) var(--ease-contacto) both,
+    finalizar-pulso 2.4s var(--ease-contacto) 1s infinite;
+}
+.btn-finalizar:disabled { opacity: 1; } /* durante "guardando" sigue con look primario */
+.btn-finalizar-listo {
+  animation: none; background: var(--verde-petroleo); color: var(--blanco);
+}
+@keyframes finalizar-entrada {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes finalizar-pulso {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-finalizar { animation: none; }
 }
 
 /* ---------- Consentimiento: pasos ---------- */

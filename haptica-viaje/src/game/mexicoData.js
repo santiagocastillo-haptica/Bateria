@@ -27,7 +27,7 @@ export const MUEBLES_MX = [
  *  - salida  : rumbo a Chile (se abre al completar México)
  */
 export const OBJETOS_MX = [
-  { id: "mariaca", tipo: "npc", emoji: "👩🏽", nombre: "Mariaca", x: 180, y: 150 },
+  { id: "mariaca", tipo: "npc", emoji: "👩🏻", nombre: "Mariaca", x: 180, y: 150 },
   { id: "carrito", tipo: "carrito", emoji: "🛺", nombre: "Carrito de excursión", x: 520, y: 150 },
   { id: "fotoMX", tipo: "photo", emoji: "🎉", nombre: "Plaza de México", foto: "Momento en México", x: 360, y: 96 },
   { id: "salidaMX", tipo: "salida", emoji: "🚪", nombre: "Salida hacia Chile", x: 360, y: 30 },

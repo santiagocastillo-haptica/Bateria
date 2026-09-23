@@ -15,7 +15,7 @@ export const ESCENAS = {
   ultima_puerta: { bg: "#FA4616", emojis: ["🚪", "🔐"] },
   final: { bg: "#FA4616", emojis: ["🎉", "🍊"] },
   mexico: { bg: "#E5A000", emojis: ["🌮", "🎉"] },
-  mariaca: { bg: "#E5A000", emojis: ["👩🏽"] },
+  mariaca: { bg: "#E5A000", emojis: ["👩🏻"] },
   chile: { bg: "#00BCA0", emojis: ["⛰️"] },
   angelica: { bg: "#00BCA0", emojis: ["👩🏼"] },
   lorenzo: { bg: "#00BCA0", emojis: ["🐶"] },
@@ -24,13 +24,25 @@ export const ESCENAS = {
   generico: { bg: "#FA4616", emojis: ["🗺️"] },
 };
 
-export default function EscenaFoto({ sceneKey, avatar = "🍊", size = 220 }) {
+export default function EscenaFoto({ sceneKey, avatar = "🍊", size = 220, dataUrl }) {
   const esc = ESCENAS[sceneKey] || ESCENAS.generico;
   const grande = size >= 160;
+  const alto = Math.round(size * 0.72);
+
+  // Foto real capturada con la cámara del dispositivo (Sección 6): se
+  // renderiza tal cual, en vez de la escena estilizada con emojis.
+  if (dataUrl) {
+    return (
+      <div className="escena-foto escena-foto-real" style={{ width: size, height: alto }}>
+        <img src={dataUrl} alt="Foto capturada" className="escena-foto-img" />
+      </div>
+    );
+  }
+
   return (
     <div
       className="escena-foto"
-      style={{ background: esc.bg, width: size, height: Math.round(size * 0.72) }}
+      style={{ background: esc.bg, width: size, height: alto }}
     >
       <div className="escena-foto-elementos" style={{ fontSize: grande ? "3rem" : "1.5rem" }}>
         {esc.emojis.map((e, i) => (

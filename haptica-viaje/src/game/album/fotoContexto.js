@@ -18,3 +18,11 @@ export function setContextoFoto(parcial) {
 export function getContextoFoto() {
   return ctx;
 }
+
+/** Frases de pose que rotan durante la cuenta regresiva de la cámara. */
+export const FRASES_POSE = [
+  "Posa para la foto",
+  "Haz tu mejor pose",
+  "¡Sonríe!",
+  "3… 2… 1…",
+];

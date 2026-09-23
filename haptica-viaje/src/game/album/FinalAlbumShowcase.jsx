@@ -23,10 +23,13 @@ export default function FinalAlbumShowcase({ onContinuar }) {
         <div className="album-carpetas">
           {carpetas.map((f) => {
             const fotos = album[f.id] || [];
+            // Si hay una foto real (cámara del dispositivo), se usa esa como
+            // miniatura; si no, se cae en la escena estilizada de siempre.
+            const ultimaConFoto = [...fotos].reverse().find((p) => p.dataUrl);
             return (
               <div key={f.id} className={`carpeta ${fotos.length > 0 ? "tiene" : ""}`}>
                 <div className="carpeta-mini">
-                  <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={90} />
+                  <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={90} dataUrl={ultimaConFoto?.dataUrl} />
                 </div>
                 <div className="carpeta-nombre">📁 {f.nombre}</div>
                 <div className="carpeta-conteo">

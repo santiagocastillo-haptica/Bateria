@@ -24,7 +24,7 @@ export default function Album({ onClose }) {
         <div className="modal album-modal" onClick={(e) => e.stopPropagation()}>
           <h2>📷 {folder.nombre}</h2>
           <div className="foto-ampliada">
-            <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={300} />
+            <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={300} dataUrl={f.dataUrl} />
             <div className="foto-ampliada-caption">“{f.caption}”</div>
             <div className="foto-ampliada-sub">Momento capturado</div>
           </div>
@@ -50,7 +50,7 @@ export default function Album({ onClose }) {
             <div className="album-fotos">
               {fotos.map((f, i) => (
                 <button key={f.photoId} className="album-foto" onClick={() => setFotoIndex(i)}>
-                  <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={130} />
+                  <EscenaFoto sceneKey={f.sceneKey} avatar="🍊" size={130} dataUrl={f.dataUrl} />
                   <span className="album-foto-pie">Momento capturado</span>
                 </button>
               ))}

@@ -29,7 +29,7 @@ export default function MissionQuestions({
           {intro.subtitulo && <p className="sub">{intro.subtitulo}</p>}
           {intro.npc && (
             <div className="dialogo-caja" style={{ marginTop: 12 }}>
-              <div className="dialogo-nombre">{intro.npcEmoji || "👩🏽"} {intro.npcNombre || "Mariaca"}</div>
+              <div className="dialogo-nombre">{intro.npcEmoji || "👩🏻"} {intro.npcNombre || "Mariaca"}</div>
               <div className="dialogo-texto">{intro.npc}</div>
             </div>
           )}

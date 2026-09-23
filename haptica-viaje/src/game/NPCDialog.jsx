@@ -5,9 +5,26 @@
  */
 import { useState } from "react";
 
+// Glifo exclusivo de Santi (Circuito Final). Cuando aparece como retrato
+// grande en la escena del diálogo, se le agregan gafas con CSS (Sección 5
+// del punch list): el emoji genérico no soporta gafas + tono de piel a la vez.
+const EMOJI_SANTI = "🧑🏻";
+
+function EmojiEscena({ valor }) {
+  if (valor === EMOJI_SANTI) {
+    return (
+      <span className="dialogo-npc-emoji avatar-santi-gafas">
+        {valor}
+        <span className="avatar-santi-gafas-lentes" aria-hidden="true" />
+      </span>
+    );
+  }
+  return <span className="dialogo-npc-emoji">{valor}</span>;
+}
+
 export default function NPCDialog({
   nombre = "Mariaca",
-  emoji = "👩🏽",
+  emoji = "👩🏻",
   avatarGlyph = "🍊",
   escenaEmojis,
   color = "#FA4616",
@@ -29,7 +46,7 @@ export default function NPCDialog({
       <div className="tarjeta dialogo" style={{ borderTop: `6px solid ${color}` }}>
         <div className="dialogo-escena" style={{ background: color }}>
           {emojisEscena.map((e, k) => (
-            <span key={k} className="dialogo-npc-emoji">{e}</span>
+            <EmojiEscena key={k} valor={e} />
           ))}
           <span className="dialogo-vs">↔</span>
           <span className="dialogo-npc-emoji">{avatarGlyph}</span>
