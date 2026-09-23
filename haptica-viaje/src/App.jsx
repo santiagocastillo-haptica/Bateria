@@ -13,6 +13,7 @@ import {
   setConsentimiento,
   guardarRespuesta,
   otorgarLlaveSiBloqueCompleto,
+  repararLlaves,
   guardarPausaJuli,
   crearSoporte,
   marcarCompletado,
@@ -127,6 +128,27 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
   const [mostrarPasaporte, setMostrarPasaporte] = useState(false);
   const [mostrarAyuda, setMostrarAyuda] = useState(false);
   const [bloqueado, setBloqueado] = useState(!!usuario?.progreso?.bloqueado_tecnico);
+
+  // --- Efecto: reparar llaves de bloque que quedaron sin otorgar por el bug
+  // histórico (llave otorgada solo al final de la etapa, no de cada bloque).
+  // Se corre una sola vez por sesión; es idempotente y segura de repetir.
+  useEffect(() => {
+    let cancelado = false;
+    (async () => {
+      await repararLlaves(uid, experiencia.bloques);
+      if (cancelado) return;
+      try {
+        const fresco = await getUsuario(uid);
+        if (!cancelado && fresco?.progreso?.llaves_obtenidas) {
+          setLlaves(fresco.progreso.llaves_obtenidas);
+        }
+      } catch (_) {}
+    })();
+    return () => {
+      cancelado = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid]);
 
   // --- Efecto: otorgar llave al llegar a un paso "llave" (idempotente) ---
   useEffect(() => {

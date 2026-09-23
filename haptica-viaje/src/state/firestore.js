@@ -178,6 +178,29 @@ export async function otorgarLlaveSiBloqueCompleto(uid, idsBloque, llave) {
   return true;
 }
 
+/**
+ * Reparación: otorga cualquier llave de bloque que ya deba existir (todas
+ * sus preguntas ya están respondidas) pero que quedó sin otorgar por el bug
+ * histórico de "llave otorgada solo al final de la etapa". Idempotente y
+ * segura de llamar siempre al entrar a una zona: no repite llaves ya
+ * otorgadas ni toca bloques incompletos.
+ */
+export async function repararLlaves(uid, bloques) {
+  if (MODO_DEMO) return; // el modo demo no tuvo este bug (sin reglas de puerta)
+  const existentes = await getRespuestasIds(uid);
+  for (const b of bloques) {
+    if (b.preguntas.every((id) => existentes.has(id))) {
+      try {
+        await updateDoc(doc(db, "usuarios", uid), {
+          "progreso.llaves_obtenidas": arrayUnion(b.llave),
+        });
+      } catch (_) {
+        // Si esta llave en particular falla, seguimos con las demás.
+      }
+    }
+  }
+}
+
 /* ------------------------------------------------------------- pausa / soporte */
 
 export async function guardarPausaJuli(uid, comentario) {
