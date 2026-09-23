@@ -40,6 +40,7 @@ import { resolverPerfil } from "./userProfile.js";
 import { ES_REVIEW } from "./config/appMode.js";
 import ReviewBar from "./components/ReviewBar.jsx";
 import { getPlaceholder } from "./data/placeholders.js";
+import { conReintento } from "./state/retry.js";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -272,7 +273,15 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
             posEnBloque={posEnBloque}
             totalBloque={totalBloque}
             onSubmit={async (valor) => {
-              await guardarRespuesta(uid, pregunta, valor);
+              try {
+                // Reintento acotado: cubre errores transitorios (ej. justo
+                // después del popup de Google, mientras el token de auth se
+                // propaga al canal de Firestore).
+                await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+              } catch (error) {
+                console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+                throw error;
+              }
               await avanzar();
             }}
           />

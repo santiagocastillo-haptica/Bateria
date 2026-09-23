@@ -24,6 +24,7 @@ import {
   ANGELICA_BIENVENIDA, BOTAS_MEMORIA,
 } from "./chileData.js";
 import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoChile } from "../state/firestore.js";
+import { conReintento } from "../state/retry.js";
 
 const EXTRALABORAL = experiencia.preguntas
   .filter((q) => /Extralaboral/i.test(q.instrumento))
@@ -115,7 +116,12 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
   }
 
   async function onAnswerExc(pregunta, valor, sliceIndex) {
-    await guardarRespuesta(uid, pregunta, valor);
+    try {
+      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+    } catch (error) {
+      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      throw error;
+    }
     actualizar({ qGlobal: LIMITES_EXCURSION_CL[excActual] + sliceIndex });
   }
   async function onCompleteExc() {

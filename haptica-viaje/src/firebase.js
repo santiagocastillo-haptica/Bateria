@@ -8,6 +8,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import {
   initializeFirestore,
+  getFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
 } from "firebase/firestore";
@@ -21,9 +22,26 @@ export let googleProvider = null;
 if (!MODO_DEMO) {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-  });
+  try {
+    // Caché offline con soporte multi-pestaña. Puede LANZAR si IndexedDB no
+    // está disponible (modo privado de algunos navegadores, ciertos webviews
+    // embebidos) o si ya hay otra pestaña usando un tab manager incompatible.
+    // Si initializeFirestore() lanza aquí, `db` quedaría null y CADA guardado
+    // (guardarRespuesta, etc.) fallaría de inmediato — por eso el fallback:
+    // Firestore sigue funcionando sin persistencia offline en vez de romper
+    // la app entera.
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    });
+  } catch (error) {
+    console.error(
+      "initializeFirestore con caché offline falló, se usa Firestore sin persistencia local:",
+      error?.code,
+      error?.message,
+      error
+    );
+    db = getFirestore(app);
+  }
   // Proveedor Google restringido por sugerencia de dominio (Sección H).
   // La restricción REAL y obligatoria vive en firestore.rules.
   googleProvider = new GoogleAuthProvider();

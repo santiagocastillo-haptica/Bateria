@@ -26,6 +26,7 @@ import CardsGame from "./minijuegos/CardsGame.jsx";
 import TruthDareGame from "./minijuegos/TruthDareGame.jsx";
 import { ACTIVIDADES, SANTI_CAMI_BIENVENIDA, CODIGO_FINAL, PREGUNTA_FINAL, PISTA_EXTRA_FINAL, SANTI, CAMI } from "./regresoData.js";
 import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoRegreso } from "../state/firestore.js";
+import { conReintento } from "../state/retry.js";
 
 const INTRA = experiencia.preguntas
   .filter((q) => /Intralaboral/i.test(q.instrumento))
@@ -107,7 +108,12 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
 
   async function onAnswer(pregunta, valor, sliceIndex) {
     const ACT = ACTIVIDADES[juego.actIndex];
-    await guardarRespuesta(uid, pregunta, valor, { actividad: ACT.id, etapa: "regreso" });
+    try {
+      await conReintento(() => guardarRespuesta(uid, pregunta, valor, { actividad: ACT.id, etapa: "regreso" }));
+    } catch (error) {
+      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      throw error;
+    }
     actualizar({ qGlobal: LIMITES[juego.actIndex] + sliceIndex });
   }
   async function onCompleteBloque() {
@@ -221,7 +227,7 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
   }
 
   if (juego.fase === "despedida") {
-    return <FarewellScreen haptiquenoLabel={haptiquenoLabel} avatarGlyph={avatarGlyph} />;
+    return <FarewellScreen uid={uid} haptiquenoLabel={haptiquenoLabel} avatarGlyph={avatarGlyph} />;
   }
 
   if (juego.fase === "actividad") {

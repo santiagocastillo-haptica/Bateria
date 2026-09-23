@@ -5,8 +5,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function esDeHaptica() {
+      // .lower() evita falsos negativos si el correo de Google llega con
+      // mayúsculas (ej. Nombre@Haptica.co): el token no siempre viene en
+      // minúsculas garantizado, y una comparación case-sensitive bloquearía
+      // a un colaborador real por escritura del correo, no por dominio.
       return request.auth != null
-        && request.auth.token.email.matches('.*@haptica[.]co$');
+        && request.auth.token.email.lower().matches('.*@haptica[.]co$');
     }
 
     function esElMismoUsuario(uid) {

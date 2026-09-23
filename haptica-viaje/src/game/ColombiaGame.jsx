@@ -21,6 +21,7 @@ import { OBJETOS_DIBUJO, ITEMS_REQUERIDOS, CODIGO_MISTERIO, PREGUNTA_MISTERIO, P
 import { setContextoFoto } from "./album/fotoContexto.js";
 import { INSTRUCCION_JUEGO_TITULO, INSTRUCCION_JUEGO } from "../data/textos.js";
 import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoColombia } from "../state/firestore.js";
+import { conReintento } from "../state/retry.js";
 
 const DG_PREGUNTAS = experiencia.preguntas
   .filter((q) => q.instrumento === "Ficha de Datos Generales")
@@ -155,7 +156,12 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
 
   // --- Datos Generales (motor de preguntas) ---
   async function onAnswerDG(pregunta, valor, nuevoIndex) {
-    await guardarRespuesta(uid, pregunta, valor);
+    try {
+      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+    } catch (error) {
+      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      throw error;
+    }
     actualizar({ dgIndex: nuevoIndex });
   }
   async function onCompleteDG() {

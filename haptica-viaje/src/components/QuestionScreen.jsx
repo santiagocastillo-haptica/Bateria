@@ -72,7 +72,10 @@ export default function QuestionScreen({
     setErrorGuardado(false);
     try {
       await onSubmit(valor()); // App guarda en Firestore y avanza al confirmar
-    } catch (_) {
+    } catch (error) {
+      // El mensaje amigable se queda igual; esto solo deja el error REAL
+      // visible en devtools para poder diagnosticar (código de Firestore, etc.)
+      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
       setErrorGuardado(true);
       setGuardando(false); // permite reintentar; la respuesta ya quedó en buffer local
     }

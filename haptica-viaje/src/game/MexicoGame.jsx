@@ -23,6 +23,7 @@ import {
   MUNDO_MX, MUEBLES_MX, OBJETOS_MX, EXCURSIONES, LIMITES_EXCURSION, MARIACA_BIENVENIDA,
 } from "./mexicoData.js";
 import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoMexico } from "../state/firestore.js";
+import { conReintento } from "../state/retry.js";
 
 const ESTRES = experiencia.preguntas
   .filter((q) => /Estr[eé]s/i.test(q.instrumento))
@@ -96,7 +97,7 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
 
   // --- Interacciones del hub ---
   function onInteract(id) {
-    if (id === "mariaca") return toast("👩🏽 Mariaca: ¡sube al carrito 🛺 para la siguiente parada!");
+    if (id === "mariaca") return toast("👩🏻 Mariaca: ¡sube al carrito 🛺 para la siguiente parada!");
     if (id === "fotoMX") {
       agregarFoto("Momento en México");
       return toast("📷 Momento registrado: Momento en México");
@@ -113,7 +114,12 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
 
   // --- Preguntas de la excursión actual ---
   async function onAnswerExc(pregunta, valor, sliceIndex) {
-    await guardarRespuesta(uid, pregunta, valor);
+    try {
+      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+    } catch (error) {
+      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      throw error;
+    }
     actualizar({ qGlobal: LIMITES_EXCURSION[excActual] + sliceIndex });
   }
   async function onCompleteExc() {
@@ -159,7 +165,7 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
     return (
       <NPCDialog
         nombre="Mariaca"
-        emoji="👩🏽"
+        emoji="👩🏻"
         avatarGlyph={avatarGlyph}
         color="#E5A000"
         lineas={MARIACA_BIENVENIDA}
