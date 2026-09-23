@@ -2,11 +2,35 @@
  * authProvider.js — autenticación unificada (Firebase real o MODO DEMO).
  * Los componentes NO importan firebase/auth directamente; usan esta fachada.
  */
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { auth, googleProvider, DOMINIO_PERMITIDO, MODO_DEMO } from "../firebase.js";
 import { getDemoUser, setDemoUser } from "./demoStore.js";
 
 export { DOMINIO_PERMITIDO, MODO_DEMO };
+
+/**
+ * En navegadores móviles, signInWithPopup falla o queda bloqueado con
+ * frecuencia (bloqueadores de popups, WebViews, Safari/Chrome móvil). Ahí se
+ * usa signInWithRedirect en su lugar (la página navega a Google y vuelve).
+ */
+function esNavegadorMovil() {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(navigator.userAgent || "");
+}
+
+// Al cargar (real, no demo): si venimos de un signInWithRedirect, procesa el
+// resultado para que los errores (ej. dominio no permitido) no se pierdan.
+if (!MODO_DEMO) {
+  getRedirectResult(auth).catch((e) => {
+    console.error("getRedirectResult failed:", e?.code, e?.message, e);
+  });
+}
 
 // --- listeners para el modo demo ---
 const listeners = new Set();
@@ -31,6 +55,13 @@ export async function ingresarGoogle() {
   if (MODO_DEMO) {
     setDemoUser({ uid: "demo-uid", email: "demo@haptica.co", displayName: "Colaborador Demo" });
     notificarDemo();
+    return;
+  }
+  if (esNavegadorMovil()) {
+    // La página navega a Google y vuelve; el resultado se procesa en
+    // getRedirectResult() (arriba) y el cambio de sesión llega por
+    // onAuthStateChanged (App.jsx ya valida el dominio ahí).
+    await signInWithRedirect(auth, googleProvider);
     return;
   }
   const result = await signInWithPopup(auth, googleProvider);

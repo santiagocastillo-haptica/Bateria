@@ -122,6 +122,15 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
       console.error("guardarRespuesta failed:", error?.code, error?.message, error);
       throw error;
     }
+    // Otorga la llave del bloque de ESTA pregunta apenas se completa: los
+    // límites de excursión no coinciden con los cortes oficiales de
+    // bloque/llave, así que no se puede esperar al final de la excursión.
+    const bloque = experiencia.bloques.find((b) => b.preguntas.includes(pregunta.id));
+    if (bloque) {
+      try {
+        await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
+      } catch (_) {}
+    }
     actualizar({ qGlobal: LIMITES_EXCURSION_CL[excActual] + sliceIndex });
   }
   async function onCompleteExc() {

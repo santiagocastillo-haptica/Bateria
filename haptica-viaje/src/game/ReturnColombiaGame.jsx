@@ -114,6 +114,15 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
       console.error("guardarRespuesta failed:", error?.code, error?.message, error);
       throw error;
     }
+    // Otorga la llave del bloque de ESTA pregunta apenas se completa: las
+    // actividades del circuito final no coinciden con los cortes oficiales
+    // de bloque/llave, así que no se puede esperar al final del circuito.
+    const bloque = experiencia.bloques.find((b) => b.preguntas.includes(pregunta.id));
+    if (bloque) {
+      try {
+        await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
+      } catch (_) {}
+    }
     actualizar({ qGlobal: LIMITES[juego.actIndex] + sliceIndex });
   }
   async function onCompleteBloque() {

@@ -120,6 +120,16 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
       console.error("guardarRespuesta failed:", error?.code, error?.message, error);
       throw error;
     }
+    // Otorga la llave del bloque de ESTA pregunta apenas se completa: los
+    // límites de excursión (11/21/31) no coinciden con los cortes oficiales
+    // de bloque/llave (8/8/8/7), así que no se puede esperar al final de la
+    // excursión para desbloquear la puerta de la siguiente pregunta.
+    const bloque = experiencia.bloques.find((b) => b.preguntas.includes(pregunta.id));
+    if (bloque) {
+      try {
+        await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
+      } catch (_) {}
+    }
     actualizar({ qGlobal: LIMITES_EXCURSION[excActual] + sliceIndex });
   }
   async function onCompleteExc() {

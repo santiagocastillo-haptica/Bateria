@@ -162,6 +162,16 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
       console.error("guardarRespuesta failed:", error?.code, error?.message, error);
       throw error;
     }
+    // Otorga la llave del bloque de ESTA pregunta apenas se completa, no solo
+    // al final de todo el instrumento: las reglas de Firestore exigen la
+    // llave del bloque anterior para aceptar la siguiente pregunta (puerta),
+    // y los bloques oficiales no coinciden con los cortes de la narrativa.
+    const bloque = experiencia.bloques.find((b) => b.preguntas.includes(pregunta.id));
+    if (bloque) {
+      try {
+        await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
+      } catch (_) {}
+    }
     actualizar({ dgIndex: nuevoIndex });
   }
   async function onCompleteDG() {
