@@ -76,10 +76,11 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
 
   // Contexto para la cámara (carpeta del álbum según el momento).
   useEffect(() => {
-    const map = { aterrizaje: "llegada_mx", sello: "llegada_mx", mariaca: "mariaca" };
+    // La carpeta "Con Mariaca" se retiró del álbum; su momento cae en el
+    // recorrido general de México.
+    const map = { aterrizaje: "llegada_mx", sello: "llegada_mx", mariaca: "recorrido_mx" };
     const folderId = map[juego.fase] || "recorrido_mx";
-    const sceneKey = folderId === "mariaca" ? "mariaca" : "mexico";
-    setContextoFoto({ folderId, country: "México", sceneKey, avatar: avatarGlyph });
+    setContextoFoto({ folderId, country: "México", sceneKey: "mexico", avatar: avatarGlyph });
   }, [juego.fase, avatarGlyph]);
 
   // --- Objetos del hub ---

@@ -11,6 +11,7 @@ import experiencia from "../data/experiencia.json";
 import LandingScreen from "./LandingScreen.jsx";
 import { setContextoFoto } from "./album/fotoContexto.js";
 import { totalFotos } from "./album/albumManager.js";
+import AutoCamera from "./album/AutoCamera.jsx";
 import FinalAlbumShowcase from "./album/FinalAlbumShowcase.jsx";
 import FarewellScreen from "./FarewellScreen.jsx";
 import Confetti from "../components/Confetti.jsx";
@@ -38,6 +39,18 @@ const LIMITES = Array.from({ length: N + 1 }, (_, i) => Math.round((i * INTRA.le
 
 const hostDe = (h) => (h === "cami" ? CAMI : SANTI);
 
+/** Carpeta del álbum por actividad (misterio_inicial/final no son minijuegos). */
+const CARPETA_POR_ACTIVIDAD = {
+  misterio_inicial: "regreso",
+  tejo: "tejo",
+  carritos: "carritos",
+  bolorana: "bolorana",
+  cartas: "cartas",
+  bolos: "bolos",
+  verdadreto: "verdadreto",
+  final: "ultima_puerta",
+};
+
 export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyph = "🍊" }) {
   const init = usuario?.juego_regreso || {};
   const fotosPrevias = [
@@ -58,6 +71,9 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
   const [overlay, setOverlay] = useState(null); // album | inventario
   const [mensaje, setMensaje] = useState("");
   const toastRef = useRef();
+  // Carpeta de la actividad recién completada, para la cámara intercalada
+  // (se necesita mientras `juego.actIndex` ya apunta a la SIGUIENTE actividad).
+  const camaraFolderRef = useRef(null);
 
   function toast(m) {
     setMensaje(m);
@@ -85,10 +101,11 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
     let folderId = "regreso";
     if (juego.fase === "actividad") {
       const ACT = ACTIVIDADES[juego.actIndex];
-      const m = { misterio_inicial: "regreso", tejo: "tejo", carritos: "carritos", bolorana: "bolorana", cartas: "cartas", bolos: "bolos", verdadreto: "verdadreto", final: "ultima_puerta" };
-      folderId = m[ACT?.id] || "regreso";
+      folderId = CARPETA_POR_ACTIVIDAD[ACT?.id] || "regreso";
     } else if (juego.fase === "sello" || juego.fase === "finale") {
       folderId = "final";
+    } else if (juego.fase === "camara_intermedia" && camaraFolderRef.current) {
+      folderId = camaraFolderRef.current;
     }
     const sceneKey = folderId === "regreso" ? "regreso_haptica" : folderId;
     setContextoFoto({ folderId, country: "Colombia", sceneKey, avatar: avatarGlyph });
@@ -129,6 +146,11 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
     const ACT = ACTIVIDADES[juego.actIndex];
     const nuevo = juego.actIndex + 1;
     const hechas = [...new Set([...juego.actividadesHechas, ACT.id])];
+    // Cámara intercalada: solo después de un minijuego real (no del misterio
+    // inicial ni del misterio final), y alternando sí/no para que no aparezca
+    // siempre — tejo (1) sí, carritos (2) no, rana (3) sí, cartas (4) no...
+    const esMinijuego = ACT.tipo !== "nota" && ACT.tipo !== "mystery-final";
+    const tocaCamara = esMinijuego && juego.actIndex % 2 === 1;
     if (nuevo >= ACTIVIDADES.length) {
       try {
         for (const b of experiencia.bloques.slice(10, 15)) {
@@ -136,6 +158,9 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         }
       } catch (_) {}
       actualizar({ actividadesHechas: hechas, actIndex: nuevo, completado: true, fase: "sello" });
+    } else if (tocaCamara) {
+      camaraFolderRef.current = CARPETA_POR_ACTIVIDAD[ACT.id] || "regreso";
+      actualizar({ actividadesHechas: hechas, actIndex: nuevo, fase: "camara_intermedia" });
     } else {
       actualizar({ actividadesHechas: hechas, actIndex: nuevo, fase: "mundo", subfase: "juego" });
       toast("✅ Actividad completada — has avanzado en el recorrido.");
@@ -237,6 +262,10 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
 
   if (juego.fase === "despedida") {
     return <FarewellScreen uid={uid} haptiquenoLabel={haptiquenoLabel} avatarGlyph={avatarGlyph} />;
+  }
+
+  if (juego.fase === "camara_intermedia") {
+    return <AutoCamera onFin={() => actualizar({ fase: "mundo", subfase: "juego" })} />;
   }
 
   if (juego.fase === "actividad") {
