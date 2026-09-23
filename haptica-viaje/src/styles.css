@@ -504,26 +504,6 @@ button.inv-chip { cursor: pointer; }
 .dialogo-punto { width: 8px; height: 8px; border-radius: var(--radius-0); background: var(--gris-200); }
 .dialogo-punto.activo { background: var(--naranja-haptica); }
 
-/* ---------- Avatar de Santi (gafas, sin asset nuevo) ----------
-   El emoji genérico no trae una versión "con gafas" que soporte tono de
-   piel, así que se dibujan con CSS (cuadradas, sin radius, tinta de marca)
-   sobre el glifo. `.avatar-santi-gafas` envuelve el emoji; el span hijo
-   `.avatar-santi-gafas-lentes` es el puente, y sus ::before/::after dibujan
-   los dos lentes a los lados. */
-.avatar-santi-gafas { position: relative; display: inline-block; line-height: 1; }
-.avatar-santi-gafas-lentes {
-  position: absolute; left: 50%; top: 38%; width: 0.3em; height: 0.03em;
-  background: var(--negro-tinta); transform: translate(-50%, -50%);
-}
-.avatar-santi-gafas-lentes::before,
-.avatar-santi-gafas-lentes::after {
-  content: ""; position: absolute; top: 50%; width: 0.3em; height: 0.22em;
-  border: 0.045em solid var(--negro-tinta); border-radius: var(--radius-0);
-  background: rgb(255 255 255 / .15); transform: translateY(-50%);
-}
-.avatar-santi-gafas-lentes::before { right: 100%; }
-.avatar-santi-gafas-lentes::after { left: 100%; }
-
 /* ---------- Carrito ---------- */
 .carril { position: relative; height: 90px; margin: var(--space-4) 0; overflow: hidden; }
 .carril-linea {

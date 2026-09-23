@@ -3,21 +3,28 @@
  * Usa la cámara REAL del dispositivo cuando hay permiso (Sección 6); si no
  * hay cámara disponible (permiso denegado, navegador sin soporte), cae al
  * visor simulado de siempre, con un aviso. La foto se guarda automáticamente
- * en la carpeta del contexto actual (no la elige el jugador). Es opcional.
+ * en la carpeta del contexto actual (no la elige el jugador).
+ *
+ * La captura es AUTOMÁTICA: al abrir el visor corre la misma cuenta
+ * regresiva de 3 segundos que AutoCamera (con las frases de pose) y dispara
+ * sola — no requiere un botón "Tomar foto". Se puede repetir con "Tomar
+ * otra" si el resultado no convenció.
  */
 import { useEffect, useState } from "react";
 import EscenaFoto from "./EscenaFoto.jsx";
-import { getContextoFoto } from "./fotoContexto.js";
+import { getContextoFoto, FRASES_POSE } from "./fotoContexto.js";
 import { capturar, FOLDER_BY_ID } from "./albumManager.js";
 import { useCamara } from "./useCamara.js";
 
 export default function CameraMode({ onClose }) {
   const ctx = getContextoFoto();
   const folder = FOLDER_BY_ID[ctx.folderId] || FOLDER_BY_ID.otros;
-  const [fase, setFase] = useState("visor"); // visor | flash | capturada
+  const [n, setN] = useState(3);
+  const [fase, setFase] = useState("cuenta"); // cuenta | flash | capturada
   const [foto, setFoto] = useState(null);
   const { videoRef, estado: camaraEstado, capturarFrame } = useCamara();
   const camaraLista = camaraEstado === "lista";
+  const frasePose = FRASES_POSE[Math.min(3 - n, FRASES_POSE.length - 1)];
 
   useEffect(() => {
     function onKey(e) {
@@ -27,23 +34,42 @@ export default function CameraMode({ onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  function tomar() {
-    setFase("flash");
+  // Cuenta regresiva 3 · 2 · 1
+  useEffect(() => {
+    if (fase !== "cuenta") return;
+    const t = setTimeout(() => {
+      if (n > 1) setN(n - 1);
+      else setFase("flash");
+    }, 650);
+    return () => clearTimeout(t);
+  }, [n, fase]);
+
+  // Disparo + guardado automático
+  useEffect(() => {
+    if (fase !== "flash") return;
     // Captura el cuadro real ANTES de que termine el flash (mientras el
     // video sigue corriendo), para que la foto no incluya el destello blanco.
     const dataUrl = camaraLista ? capturarFrame() : null;
-    setTimeout(() => {
-      const guardada = capturar({
-        folderId: folder.id,
-        caption: folder.caption,
-        sceneKey: ctx.sceneKey,
-        country: ctx.country,
-        activity: ctx.activity,
-        dataUrl: dataUrl || undefined,
-      });
+    const guardada = capturar({
+      folderId: folder.id,
+      caption: folder.caption,
+      sceneKey: ctx.sceneKey,
+      country: ctx.country,
+      activity: ctx.activity,
+      dataUrl: dataUrl || undefined,
+    });
+    const t = setTimeout(() => {
       setFoto(guardada);
       setFase("capturada");
     }, 220);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fase]);
+
+  function tomarOtra() {
+    setFoto(null);
+    setN(3);
+    setFase("cuenta");
   }
 
   return (
@@ -71,32 +97,27 @@ export default function CameraMode({ onClose }) {
           <span className="esq e1" /><span className="esq e2" />
           <span className="esq e3" /><span className="esq e4" />
         </div>
+        {fase === "cuenta" && <div className="auto-cuenta">{n}</div>}
         {fase === "capturada" && <div className="camara-capturado">📸 ¡Momento capturado!</div>}
       </div>
 
-      {camaraEstado === "no-disponible" && fase !== "capturada" && (
+      {fase === "cuenta" && <div className="auto-camara-pose">{frasePose}</div>}
+
+      {camaraEstado === "no-disponible" && fase === "cuenta" && (
         <p className="aviso">
           📵 No se pudo acceder a la cámara del dispositivo (permiso denegado o no disponible).
-          Igual puedes registrar el momento — se guardará con la escena del recorrido.
+          Igual se registra el momento con la escena del recorrido.
         </p>
       )}
 
-      {fase !== "capturada" ? (
-        <>
-          <p className="camara-hint">📷 Este parece un buen momento para una foto.</p>
-          <div className="btn-fila">
-            <button className="btn btn-primario" onClick={tomar}>📸 Tomar foto</button>
-            <button className="btn btn-secundario" onClick={onClose}>Salir</button>
-          </div>
-        </>
-      ) : (
+      {fase === "capturada" && (
         <>
           <div className="camara-recuerdo">
             <div className="camara-recuerdo-folder">📁 {folder.nombre}</div>
             <div className="camara-recuerdo-caption">"{foto?.caption}"</div>
           </div>
           <div className="btn-fila">
-            <button className="btn btn-secundario" onClick={() => setFase("visor")}>Tomar otra</button>
+            <button className="btn btn-secundario" onClick={tomarOtra}>Tomar otra</button>
             <button className="btn btn-primario" onClick={onClose}>Guardar y salir</button>
           </div>
         </>
