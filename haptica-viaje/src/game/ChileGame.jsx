@@ -21,7 +21,7 @@ import {
   MUNDO_CL, MUEBLES_CL, OBJETOS_CL, EXCURSIONES_CL, LIMITES_EXCURSION_CL,
   ANGELICA_BIENVENIDA, BOTAS_MEMORIA,
 } from "./chileData.js";
-import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoChile } from "../state/firestore.js";
+import { guardarRespuestaConProgreso, otorgarLlaveSiBloqueCompleto, setJuegoChile } from "../state/firestore.js";
 import { conReintento } from "../state/retry.js";
 
 const EXTRALABORAL = experiencia.preguntas
@@ -91,10 +91,16 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
   }
 
   async function onAnswerExc(pregunta, valor, sliceIndex) {
+    const nuevoQGlobal = LIMITES_EXCURSION_CL[excActual] + sliceIndex;
     try {
-      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+      // Respuesta individual + avance de qGlobal como una sola operación
+      // atómica: si Firestore rechaza cualquiera de las dos, ninguna queda
+      // escrita — qGlobal nunca avanza sin la respuesta real guardada.
+      await conReintento(() =>
+        guardarRespuestaConProgreso(uid, pregunta, valor, "juego_chile", { qGlobal: nuevoQGlobal })
+      );
     } catch (error) {
-      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      console.error("guardarRespuestaConProgreso failed:", error?.code, error?.message, error);
       throw error;
     }
     // Otorga la llave del bloque de ESTA pregunta apenas se completa: los
@@ -106,7 +112,7 @@ export default function ChileGame({ uid, usuario, haptiquenoLabel, avatarGlyph =
         await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
       } catch (_) {}
     }
-    actualizar({ qGlobal: LIMITES_EXCURSION_CL[excActual] + sliceIndex });
+    actualizar({ qGlobal: nuevoQGlobal });
   }
   async function onCompleteExc() {
     const exc = EXCURSIONES_CL[excActual];

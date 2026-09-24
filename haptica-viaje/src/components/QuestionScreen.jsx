@@ -28,7 +28,6 @@ export default function QuestionScreen({
   totalBloque,
   onSubmit,
   onAtras,
-  onSaltar,
 }) {
   const modo = useMemo(() => modoDePregunta(pregunta), [pregunta]);
   const ph = getPlaceholder(numeroBloque, pais);
@@ -199,12 +198,15 @@ export default function QuestionScreen({
 
         <div className="instrumento-pie">{pregunta.instrumento}</div>
 
-        {/* Navegación libre SOLO en modo revisión. En producción no existe:
-            el participante no puede retroceder ni saltar preguntas. */}
-        {ES_REVIEW && (onAtras || onSaltar) && (
+        {/* Navegación libre SOLO en modo revisión. "Saltar" ya no existe como
+            ruta funcional en ningún modo: los 4 motores de preguntas
+            (DatosGeneralesMission, MissionQuestions) dejaron de pasar
+            onSaltar, así que no hay forma de avanzar una pregunta sin que
+            haya llamado al mecanismo de guardado. Solo queda "Anterior"
+            (retroceder no salta ni omite guardado), y solo en modo revisión. */}
+        {ES_REVIEW && onAtras && (
           <div className="review-nav">
-            {onAtras && <button className="review-chip" onClick={onAtras}>← Anterior</button>}
-            {onSaltar && <button className="review-chip" onClick={onSaltar}>Saltar →</button>}
+            <button className="review-chip" onClick={onAtras}>← Anterior</button>
           </div>
         )}
       </div>

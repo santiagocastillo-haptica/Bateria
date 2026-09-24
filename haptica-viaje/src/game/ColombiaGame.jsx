@@ -18,7 +18,7 @@ import DatosGeneralesMission from "./DatosGeneralesMission.jsx";
 import TransitionScreen from "../components/TransitionScreen.jsx";
 import { OBJETOS_DIBUJO, ITEMS_REQUERIDOS, CODIGO_MISTERIO, PREGUNTA_MISTERIO, PISTA_EXTRA_MISTERIO } from "./officeData.js";
 import { INSTRUCCION_JUEGO_TITULO, INSTRUCCION_JUEGO } from "../data/textos.js";
-import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoColombia } from "../state/firestore.js";
+import { guardarRespuestaConProgreso, otorgarLlaveSiBloqueCompleto, setJuegoColombia } from "../state/firestore.js";
 import { conReintento } from "../state/retry.js";
 
 const DG_PREGUNTAS = experiencia.preguntas
@@ -132,9 +132,15 @@ export default function ColombiaGame({ uid, usuario, haptiquenoLabel, avatarGlyp
   // --- Datos Generales (motor de preguntas) ---
   async function onAnswerDG(pregunta, valor, nuevoIndex) {
     try {
-      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+      // La respuesta individual Y el avance de dgIndex se confirman como UNA
+      // sola operación atómica: si Firestore rechaza cualquiera de las dos,
+      // NINGUNA de las dos queda escrita — dgIndex nunca avanza sin que la
+      // respuesta exista de verdad en usuarios/{uid}/respuestas/{pregunta.id}.
+      await conReintento(() =>
+        guardarRespuestaConProgreso(uid, pregunta, valor, "juego_colombia", { dgIndex: nuevoIndex })
+      );
     } catch (error) {
-      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      console.error("guardarRespuestaConProgreso failed:", error?.code, error?.message, error);
       throw error;
     }
     // Otorga la llave del bloque de ESTA pregunta apenas se completa, no solo

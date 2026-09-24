@@ -19,6 +19,7 @@ import {
   serverTimestamp,
   arrayUnion,
   runTransaction,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebase.js";
 import { MODO_DEMO } from "../firebaseConfig.js";
@@ -148,10 +149,56 @@ export async function marcarCompletado(uid) {
 
 /* --------------------------------------------------------------- respuestas */
 
-export async function guardarRespuesta(uid, pregunta, opcionSeleccionada, meta = {}) {
-  if (MODO_DEMO) return demo.guardarRespuesta(uid, pregunta, opcionSeleccionada, meta);
-  const ref = doc(db, "usuarios", uid, "respuestas", pregunta.id);
-  await setDoc(ref, {
+/** Prefija cada clave de `patch` con `${prefijo}.` (mismo formato que setJuego*). */
+function planoConPrefijo(prefijo, patch) {
+  return Object.fromEntries(
+    Object.entries(patch).map(([k, v]) => [`${prefijo}.${k}`, v])
+  );
+}
+
+// Setter demo por zona, usado únicamente por el fallback de MODO_DEMO (ver abajo).
+const SETTER_DEMO_POR_ZONA = {
+  juego_colombia: demo.setJuegoColombia,
+  juego_mexico: demo.setJuegoMexico,
+  juego_chile: demo.setJuegoChile,
+  juego_regreso: demo.setJuegoRegreso,
+};
+
+/**
+ * Guarda UNA respuesta individual Y el avance de bloque correspondiente
+ * (ej. dgIndex/qGlobal) como UNA SOLA operación atómica de Firestore
+ * (writeBatch): o se confirman las dos escrituras, o no se confirma
+ * ninguna. Esto es la fuente de verdad de la contestación — el progreso
+ * (dgIndex/qGlobal/fase/etc.) es solo un puntero de navegación derivado,
+ * NUNCA se avanza si la respuesta no quedó realmente guardada.
+ *
+ * @param {string} uid
+ * @param {object} pregunta objeto oficial de experiencia.json (P001..P204)
+ * @param {*} opcionSeleccionada
+ * @param {string} zonaPrefijo "juego_colombia" | "juego_mexico" | "juego_chile" | "juego_regreso"
+ * @param {object} avancePatch ej. { dgIndex: 4 } — SIN el prefijo de zona
+ * @param {{actividad?:string, etapa?:string}} meta metadatos narrativos opcionales
+ */
+export async function guardarRespuestaConProgreso(
+  uid,
+  pregunta,
+  opcionSeleccionada,
+  zonaPrefijo,
+  avancePatch,
+  meta = {}
+) {
+  if (MODO_DEMO) {
+    // El modo demo (localStorage, un solo hilo, sin red) no tiene el riesgo
+    // de escritura parcial que resuelve el batch en Firestore real; basta
+    // con encadenar las dos escrituras en orden.
+    await demo.guardarRespuesta(uid, pregunta, opcionSeleccionada, meta);
+    const setter = SETTER_DEMO_POR_ZONA[zonaPrefijo];
+    if (setter) await setter(uid, avancePatch);
+    return;
+  }
+  const batch = writeBatch(db);
+  const refRespuesta = doc(db, "usuarios", uid, "respuestas", pregunta.id);
+  batch.set(refRespuesta, {
     numero_oficial: pregunta.numero_oficial,
     instrumento: pregunta.instrumento,
     opcion_seleccionada: opcionSeleccionada,
@@ -159,6 +206,9 @@ export async function guardarRespuesta(uid, pregunta, opcionSeleccionada, meta =
     ...(meta.actividad ? { actividad_narrativa: meta.actividad } : {}),
     ...(meta.etapa ? { etapa: meta.etapa } : {}),
   });
+  const refUsuario = doc(db, "usuarios", uid);
+  batch.update(refUsuario, planoConPrefijo(zonaPrefijo, avancePatch));
+  await batch.commit();
 }
 
 /**

@@ -21,7 +21,7 @@ import CarritosGame from "./minijuegos/CarritosGame.jsx";
 import CardsGame from "./minijuegos/CardsGame.jsx";
 import TruthDareGame from "./minijuegos/TruthDareGame.jsx";
 import { ACTIVIDADES, SANTI_CAMI_BIENVENIDA, CODIGO_FINAL, PREGUNTA_FINAL, PISTA_EXTRA_FINAL, SANTI, CAMI } from "./regresoData.js";
-import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoRegreso } from "../state/firestore.js";
+import { guardarRespuestaConProgreso, otorgarLlaveSiBloqueCompleto, setJuegoRegreso } from "../state/firestore.js";
 import { conReintento } from "../state/retry.js";
 
 const INTRA = experiencia.preguntas
@@ -81,10 +81,19 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
 
   async function onAnswer(pregunta, valor, sliceIndex) {
     const ACT = ACTIVIDADES[juego.actIndex];
+    const nuevoQGlobal = LIMITES[juego.actIndex] + sliceIndex;
     try {
-      await conReintento(() => guardarRespuesta(uid, pregunta, valor, { actividad: ACT.id, etapa: "regreso" }));
+      // Respuesta individual + avance de qGlobal como una sola operación
+      // atómica: si Firestore rechaza cualquiera de las dos, ninguna queda
+      // escrita — qGlobal nunca avanza sin la respuesta real guardada.
+      await conReintento(() =>
+        guardarRespuestaConProgreso(uid, pregunta, valor, "juego_regreso", { qGlobal: nuevoQGlobal }, {
+          actividad: ACT.id,
+          etapa: "regreso",
+        })
+      );
     } catch (error) {
-      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      console.error("guardarRespuestaConProgreso failed:", error?.code, error?.message, error);
       throw error;
     }
     // Otorga la llave del bloque de ESTA pregunta apenas se completa: las
@@ -96,7 +105,7 @@ export default function ReturnColombiaGame({ uid, usuario, haptiquenoLabel, avat
         await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
       } catch (_) {}
     }
-    actualizar({ qGlobal: LIMITES[juego.actIndex] + sliceIndex });
+    actualizar({ qGlobal: nuevoQGlobal });
   }
   async function onCompleteBloque() {
     const ACT = ACTIVIDADES[juego.actIndex];

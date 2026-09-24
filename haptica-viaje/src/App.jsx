@@ -11,7 +11,7 @@ import {
   ensureUsuario,
   getUsuario,
   setConsentimiento,
-  guardarRespuesta,
+  guardarRespuestaConProgreso,
   otorgarLlaveSiBloqueCompleto,
   repararLlaves,
   guardarPausaJuli,
@@ -298,7 +298,11 @@ function Journey({ user, usuario, setUsuario, preguntasById }) {
                 // Reintento acotado: cubre errores transitorios (ej. justo
                 // después del popup de Google, mientras el token de auth se
                 // propaga al canal de Firestore).
-                await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+                await conReintento(() =>
+                  guardarRespuestaConProgreso(uid, pregunta, valor, "progreso_legado", {
+                    ultima_pregunta: pregunta.id,
+                  })
+                );
               } catch (error) {
                 console.error("guardarRespuesta failed:", error?.code, error?.message, error);
                 throw error;

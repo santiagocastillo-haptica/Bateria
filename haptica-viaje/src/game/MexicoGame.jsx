@@ -20,7 +20,7 @@ import LandingScreen from "./LandingScreen.jsx";
 import {
   MUNDO_MX, MUEBLES_MX, OBJETOS_MX, EXCURSIONES, LIMITES_EXCURSION, MARIACA_BIENVENIDA,
 } from "./mexicoData.js";
-import { guardarRespuesta, otorgarLlaveSiBloqueCompleto, setJuegoMexico } from "../state/firestore.js";
+import { guardarRespuestaConProgreso, otorgarLlaveSiBloqueCompleto, setJuegoMexico } from "../state/firestore.js";
 import { conReintento } from "../state/retry.js";
 
 const ESTRES = experiencia.preguntas
@@ -89,10 +89,16 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
 
   // --- Preguntas de la excursión actual ---
   async function onAnswerExc(pregunta, valor, sliceIndex) {
+    const nuevoQGlobal = LIMITES_EXCURSION[excActual] + sliceIndex;
     try {
-      await conReintento(() => guardarRespuesta(uid, pregunta, valor));
+      // Respuesta individual + avance de qGlobal como una sola operación
+      // atómica: si Firestore rechaza cualquiera de las dos, ninguna queda
+      // escrita — qGlobal nunca avanza sin la respuesta real guardada.
+      await conReintento(() =>
+        guardarRespuestaConProgreso(uid, pregunta, valor, "juego_mexico", { qGlobal: nuevoQGlobal })
+      );
     } catch (error) {
-      console.error("guardarRespuesta failed:", error?.code, error?.message, error);
+      console.error("guardarRespuestaConProgreso failed:", error?.code, error?.message, error);
       throw error;
     }
     // Otorga la llave del bloque de ESTA pregunta apenas se completa: los
@@ -105,7 +111,7 @@ export default function MexicoGame({ uid, usuario, haptiquenoLabel, avatarGlyph 
         await otorgarLlaveSiBloqueCompleto(uid, bloque.preguntas, bloque.llave);
       } catch (_) {}
     }
-    actualizar({ qGlobal: LIMITES_EXCURSION[excActual] + sliceIndex });
+    actualizar({ qGlobal: nuevoQGlobal });
   }
   async function onCompleteExc() {
     const exc = EXCURSIONES[excActual];

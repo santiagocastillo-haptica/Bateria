@@ -60,11 +60,6 @@ export default function DatosGeneralesMission({ preguntas, startIndex = 0, onAns
       totalBloque={total}
       onSubmit={submit}
       onAtras={idx > 0 ? () => setIdx(idx - 1) : undefined}
-      onSaltar={() => {
-        const sig = idx + 1;
-        if (sig >= total) onComplete();
-        else setIdx(sig);
-      }}
     />
   );
 }
