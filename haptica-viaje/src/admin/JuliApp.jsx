@@ -4,8 +4,19 @@
  */
 import { useEffect, useState } from "react";
 import { observarAuth, cerrarSesion, obtenerRol, esDominioValido } from "../state/authProvider.js";
+import { colaboradorPorCorreo } from "../data/colaboradores.js";
 import JuliLogin from "./JuliLogin.jsx";
 import JuliDashboard from "./JuliDashboard.jsx";
+
+// Mientras el custom claim 'role: juli' no se haya asignado (requiere el
+// script one-time con service account), estos correos también abren el
+// panel — misma lista que esAdminHaptica() en firestore.rules, derivada de
+// TABLA_DATOS_BATERIA.xlsx (columna rol = "Administrador"). Esto es solo la
+// puerta de la UI: la seguridad real vive en las Security Rules.
+function esAdminPorCorreo(correo) {
+  const c = colaboradorPorCorreo(correo);
+  return c?.rol === "Administrador";
+}
 
 export default function JuliApp() {
   const [user, setUser] = useState(null);
@@ -29,7 +40,7 @@ export default function JuliApp() {
       }
       const rol = await obtenerRol(u);
       setUser(u);
-      setEsJuli(rol === "juli");
+      setEsJuli(rol === "juli" || esAdminPorCorreo(u.email));
       setListo(true);
     });
   }, []);
