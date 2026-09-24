@@ -3,22 +3,15 @@
  * En MODO DEMO crea un colaborador local para poder recorrer la experiencia.
  * La restricción real @haptica.co la aplican las reglas de Firestore.
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ingresarGoogle } from "../state/authProvider.js";
 import { MODO_DEMO } from "../firebaseConfig.js";
 import { esNavegadorEmbebido } from "../state/browserDetect.js";
 import OpenInBrowserScreen from "./OpenInBrowserScreen.jsx";
 
-export default function LoginScreen({ errorRedireccion }) {
-  const [error, setError] = useState(errorRedireccion || "");
+export default function LoginScreen() {
+  const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
-
-  // errorRedireccion puede llegar después del primer render (el resultado
-  // de signInWithRedirect es asíncrono); lo reflejamos si aún no hay un
-  // error propio del intento actual.
-  useEffect(() => {
-    if (errorRedireccion) setError(errorRedireccion);
-  }, [errorRedireccion]);
 
   if (esNavegadorEmbebido()) {
     return <OpenInBrowserScreen />;

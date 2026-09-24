@@ -2,60 +2,11 @@
  * authProvider.js — autenticación unificada (Firebase real o MODO DEMO).
  * Los componentes NO importan firebase/auth directamente; usan esta fachada.
  */
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider, DOMINIO_PERMITIDO, MODO_DEMO } from "../firebase.js";
 import { getDemoUser, setDemoUser } from "./demoStore.js";
 
 export { DOMINIO_PERMITIDO, MODO_DEMO };
-
-// Al cargar (real, no demo): si venimos de un signInWithRedirect, procesa el
-// resultado para que los errores (ej. dominio no permitido, o el login
-// rechazado por el propio Google dentro de un navegador embebido) no se
-// pierdan en la consola y el participante vea un mensaje claro en vez de
-// quedar "rebotado" sin explicación. `observarAuth`/LoginScreen leen este
-// valor con `obtenerErrorRedireccion()`.
-let errorRedireccion = null;
-const errorListeners = new Set();
-function notificarErrorRedireccion() {
-  errorListeners.forEach((cb) => cb(errorRedireccion));
-}
-function mensajeAmigableRedireccion(e) {
-  if (e?.code === "auth/unauthorized-domain") {
-    return "Este dominio no está autorizado para iniciar sesión. Contacta a Juli.";
-  }
-  if (e?.code === "auth/web-storage-unsupported" || e?.code === "auth/operation-not-supported-in-this-environment") {
-    return "Tu navegador está bloqueando el inicio de sesión. Intenta abrir el enlace en Chrome o Safari (no dentro de otra app) e inténtalo de nuevo.";
-  }
-  return "No fue posible completar el inicio de sesión. Vuelve a intentarlo desde Chrome o Safari.";
-}
-if (!MODO_DEMO) {
-  getRedirectResult(auth).catch((e) => {
-    console.error("getRedirectResult failed:", e?.code, e?.message, e);
-    errorRedireccion = mensajeAmigableRedireccion(e);
-    notificarErrorRedireccion();
-  });
-}
-
-/** Mensaje de error (si lo hay) dejado por un signInWithRedirect fallido. */
-export function obtenerErrorRedireccion() {
-  return errorRedireccion;
-}
-
-/**
- * Se suscribe a cambios del mensaje de error de redirect (getRedirectResult
- * puede resolver/rechazar DESPUÉS del primer render, ya que corre en
- * paralelo a onAuthStateChanged). Devuelve función para desuscribir.
- */
-export function onErrorRedireccion(cb) {
-  errorListeners.add(cb);
-  return () => errorListeners.delete(cb);
-}
 
 // --- listeners para el modo demo ---
 const listeners = new Set();
@@ -76,16 +27,19 @@ export function observarAuth(cb) {
 }
 
 /**
- * Códigos de error que significan "este navegador/contexto no puede abrir una
- * ventana emergente en absoluto" (no "el usuario la cerró" — eso NO cae aquí,
- * porque forzar un redirect justo después de que el usuario cerró el popup a
- * propósito sería un comportamiento sorpresivo y no deseado).
+ * Traduce un error real de signInWithPopup a un mensaje que el participante
+ * pueda entender y sobre el que pueda actuar (reintentar, cambiar de
+ * navegador, permitir ventanas emergentes) — nunca un código críptico.
  */
-const CODIGOS_SIN_POPUP = new Set([
-  "auth/popup-blocked",
-  "auth/operation-not-supported-in-this-environment",
-  "auth/cancelled-popup-request",
-]);
+function mensajeAmigablePopup(error) {
+  if (error?.code === "auth/popup-blocked") {
+    return "Tu navegador bloqueó la ventana de inicio de sesión. Permite ventanas emergentes para este sitio e intenta de nuevo.";
+  }
+  if (error?.code === "auth/operation-not-supported-in-this-environment") {
+    return "Este navegador no admite el inicio de sesión aquí. Abre el enlace en Chrome o Safari e inténtalo de nuevo.";
+  }
+  return "No fue posible iniciar sesión. Revisa tu conexión e inténtalo de nuevo.";
+}
 
 /** Inicia sesión con Google (o crea usuario demo). Lanza Error si el dominio no es válido. */
 export async function ingresarGoogle() {
@@ -94,17 +48,19 @@ export async function ingresarGoogle() {
     notificarDemo();
     return;
   }
-  // Siempre se intenta primero con ventana emergente — también en móvil.
-  // signInWithRedirect depende de que el navegador conserve un estado
-  // temporal (IndexedDB/sessionStorage) durante el viaje de ida y vuelta a
-  // accounts.google.com; en Chrome Android, con el dominio de autenticación
+  // SOLO ventana emergente, en todos los navegadores (desktop y móvil). Se
+  // probó signInWithRedirect como respaldo para móvil, pero Firebase mismo
+  // reportó el error "missing initial state ... storage-partitioned browser
+  // environment" en un Android real: el viaje de ida y vuelta a
+  // accounts.google.com depende de que el navegador conserve un estado
+  // temporal (IndexedDB/sessionStorage), y con el dominio de autenticación
   // de Firebase (*.firebaseapp.com) siendo distinto al dominio real de la
-  // app (Vercel), ese estado se puede perder por las restricciones de
-  // almacenamiento entre dominios — el participante acepta el login en
-  // Google y vuelve SIN sesión, sin ningún error visible. El popup evita
-  // ese viaje entre dominios por completo, así que es la vía más confiable
-  // cuando el navegador sí puede abrirlo. Solo se cae a redirect si el
-  // popup literalmente no pudo abrirse.
+  // app (Vercel), Chrome Android lo pierde por su particionamiento de
+  // almacenamiento — el participante acepta el login en Google y lo
+  // devuelve SIN sesión. El popup no depende de ese viaje entre dominios en
+  // absoluto, así que es la única vía confiable aquí; si de verdad no puede
+  // abrirse, se lanza un error claro y reintentable en vez de caer a un
+  // mecanismo que ya demostró romperse.
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const email = result.user.email || "";
@@ -113,10 +69,9 @@ export async function ingresarGoogle() {
       throw new Error("Solo se permiten cuentas @haptica.co");
     }
   } catch (error) {
-    if (!CODIGOS_SIN_POPUP.has(error?.code)) throw error;
-    await signInWithRedirect(auth, googleProvider);
-    // El resultado llega después vía getRedirectResult() (arriba) y
-    // onAuthStateChanged (App.jsx ya valida el dominio ahí).
+    if (error?.code === "auth/popup-closed-by-user") throw error; // el llamador ya ignora este caso
+    console.error("signInWithPopup failed:", error?.code, error?.message, error);
+    throw new Error(mensajeAmigablePopup(error));
   }
 }
 
