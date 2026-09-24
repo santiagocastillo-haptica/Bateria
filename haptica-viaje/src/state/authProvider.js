@@ -14,16 +14,6 @@ import { getDemoUser, setDemoUser } from "./demoStore.js";
 
 export { DOMINIO_PERMITIDO, MODO_DEMO };
 
-/**
- * En navegadores móviles, signInWithPopup falla o queda bloqueado con
- * frecuencia (bloqueadores de popups, WebViews, Safari/Chrome móvil). Ahí se
- * usa signInWithRedirect en su lugar (la página navega a Google y vuelve).
- */
-function esNavegadorMovil() {
-  if (typeof navigator === "undefined") return false;
-  return /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(navigator.userAgent || "");
-}
-
 // Al cargar (real, no demo): si venimos de un signInWithRedirect, procesa el
 // resultado para que los errores (ej. dominio no permitido, o el login
 // rechazado por el propio Google dentro de un navegador embebido) no se
@@ -85,6 +75,18 @@ export function observarAuth(cb) {
   return onAuthStateChanged(auth, cb);
 }
 
+/**
+ * Códigos de error que significan "este navegador/contexto no puede abrir una
+ * ventana emergente en absoluto" (no "el usuario la cerró" — eso NO cae aquí,
+ * porque forzar un redirect justo después de que el usuario cerró el popup a
+ * propósito sería un comportamiento sorpresivo y no deseado).
+ */
+const CODIGOS_SIN_POPUP = new Set([
+  "auth/popup-blocked",
+  "auth/operation-not-supported-in-this-environment",
+  "auth/cancelled-popup-request",
+]);
+
 /** Inicia sesión con Google (o crea usuario demo). Lanza Error si el dominio no es válido. */
 export async function ingresarGoogle() {
   if (MODO_DEMO) {
@@ -92,18 +94,29 @@ export async function ingresarGoogle() {
     notificarDemo();
     return;
   }
-  if (esNavegadorMovil()) {
-    // La página navega a Google y vuelve; el resultado se procesa en
-    // getRedirectResult() (arriba) y el cambio de sesión llega por
-    // onAuthStateChanged (App.jsx ya valida el dominio ahí).
+  // Siempre se intenta primero con ventana emergente — también en móvil.
+  // signInWithRedirect depende de que el navegador conserve un estado
+  // temporal (IndexedDB/sessionStorage) durante el viaje de ida y vuelta a
+  // accounts.google.com; en Chrome Android, con el dominio de autenticación
+  // de Firebase (*.firebaseapp.com) siendo distinto al dominio real de la
+  // app (Vercel), ese estado se puede perder por las restricciones de
+  // almacenamiento entre dominios — el participante acepta el login en
+  // Google y vuelve SIN sesión, sin ningún error visible. El popup evita
+  // ese viaje entre dominios por completo, así que es la vía más confiable
+  // cuando el navegador sí puede abrirlo. Solo se cae a redirect si el
+  // popup literalmente no pudo abrirse.
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const email = result.user.email || "";
+    if (!email.endsWith(DOMINIO_PERMITIDO)) {
+      await signOut(auth);
+      throw new Error("Solo se permiten cuentas @haptica.co");
+    }
+  } catch (error) {
+    if (!CODIGOS_SIN_POPUP.has(error?.code)) throw error;
     await signInWithRedirect(auth, googleProvider);
-    return;
-  }
-  const result = await signInWithPopup(auth, googleProvider);
-  const email = result.user.email || "";
-  if (!email.endsWith(DOMINIO_PERMITIDO)) {
-    await signOut(auth);
-    throw new Error("Solo se permiten cuentas @haptica.co");
+    // El resultado llega después vía getRedirectResult() (arriba) y
+    // onAuthStateChanged (App.jsx ya valida el dominio ahí).
   }
 }
 
