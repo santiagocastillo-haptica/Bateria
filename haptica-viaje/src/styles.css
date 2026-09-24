@@ -300,6 +300,9 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-3) var(--space-4); background: rgb(244 244 242 / .92);
   backdrop-filter: blur(6px); border-bottom: 1px solid var(--gris-200);
+  padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+  padding-left: calc(var(--space-4) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
 }
 .topbar .marca { font-weight: 800; letter-spacing: 0.02em; color: var(--naranja-haptica); text-transform: uppercase; font-size: var(--fs-small); }
 .topbar .acciones { display: flex; gap: var(--space-2); }
@@ -308,6 +311,7 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
   border-radius: var(--radius-0); padding: var(--space-2) var(--space-3); font-size: var(--fs-small); cursor: pointer;
   font-weight: 700; letter-spacing: 0.04em;
   transition: border-color 160ms var(--ease-contacto);
+  min-height: 44px; display: inline-flex; align-items: center;
 }
 .chip-btn:hover { border-color: var(--naranja-haptica); }
 
@@ -315,6 +319,7 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
 .modal-fondo {
   position: fixed; inset: 0; background: rgb(13 27 29 / .55);
   display: flex; align-items: center; justify-content: center; padding: var(--space-4); z-index: 50;
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
 .modal { background: var(--blanco); border-radius: var(--radius-md); max-width: 520px; width: 100%; padding: var(--space-6); box-shadow: var(--shadow-raised); }
 .modal h2 { margin-top: 0; }
@@ -386,7 +391,7 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
 .mundo-ayuda { max-width: 640px; text-align: center; font-size: var(--fs-small); color: var(--gris-600); margin-top: var(--space-3); }
 
 .juego-toast {
-  position: fixed; bottom: var(--space-5); left: 50%; transform: translateX(-50%);
+  position: fixed; bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
   background: rgb(13 27 29 / .94); color: var(--blanco); padding: var(--space-3) var(--space-5); border-radius: var(--radius-0);
   font-weight: 700; font-size: var(--fs-small); z-index: 60; box-shadow: var(--shadow-raised);
   animation: subir 0.2s ease;
@@ -606,7 +611,10 @@ button.inv-chip { cursor: pointer; }
 }
 
 /* ---------- Modo revisión ---------- */
-.review-bar { position: fixed; left: 12px; bottom: 12px; z-index: 55; max-width: calc(100% - 24px); }
+.review-bar {
+  position: fixed; left: 12px; z-index: 55; max-width: calc(100% - 24px);
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
 .review-badge {
   background: var(--negro-tinta); color: var(--arena); border: none; border-radius: var(--radius-0);
   padding: var(--space-2) var(--space-4); font-size: var(--fs-label); font-weight: 800; cursor: pointer; letter-spacing: 0.06em;
@@ -620,6 +628,7 @@ button.inv-chip { cursor: pointer; }
 .review-chip {
   border: 1.5px solid var(--gris-200); background: var(--blanco); border-radius: var(--radius-0);
   padding: 6px var(--space-3); font-size: var(--fs-small); font-weight: 700; cursor: pointer; color: var(--negro-tinta);
+  min-height: 44px; display: inline-flex; align-items: center;
 }
 .review-chip:hover { border-color: var(--naranja-haptica); }
 .review-chip.activo { border-color: var(--naranja-haptica); background: var(--naranja-100); }

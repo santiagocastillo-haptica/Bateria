@@ -4,7 +4,13 @@
  * guardado inmediato + llaves/puertas + pausa de Juli + soporte + bloqueo técnico.
  */
 import { useEffect, useMemo, useState } from "react";
-import { observarAuth, cerrarSesion, esDominioValido } from "./state/authProvider.js";
+import {
+  observarAuth,
+  cerrarSesion,
+  esDominioValido,
+  obtenerErrorRedireccion,
+  onErrorRedireccion,
+} from "./state/authProvider.js";
 import experiencia from "./data/experiencia.json";
 import { useJourneyState } from "./state/useJourneyState.js";
 import {
@@ -47,6 +53,13 @@ export default function App() {
   const [usuario, setUsuario] = useState(null);
   const [authListo, setAuthListo] = useState(false);
   const [cargandoUsuario, setCargandoUsuario] = useState(false);
+  const [errorLogin, setErrorLogin] = useState(() => obtenerErrorRedireccion());
+
+  // El resultado de signInWithRedirect puede llegar después del primer
+  // render (corre en paralelo a onAuthStateChanged); nos suscribimos para
+  // mostrar el mensaje en cuanto esté disponible, en vez de dejar al
+  // participante en la pantalla de login sin ninguna explicación.
+  useEffect(() => onErrorRedireccion(setErrorLogin), []);
 
   const preguntasById = useMemo(() => {
     const m = {};
@@ -81,7 +94,7 @@ export default function App() {
   }, []);
 
   if (!authListo) return <Cargando />;
-  if (!user) return <LoginScreen />;
+  if (!user) return <LoginScreen errorRedireccion={errorLogin} />;
   if (cargandoUsuario || !usuario) return <Cargando />;
 
   return (

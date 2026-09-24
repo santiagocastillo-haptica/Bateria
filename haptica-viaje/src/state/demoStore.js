@@ -16,7 +16,13 @@ function cargar() {
   }
 }
 function guardar(db) {
-  localStorage.setItem(CLAVE_DB, JSON.stringify(db));
+  try {
+    localStorage.setItem(CLAVE_DB, JSON.stringify(db));
+  } catch (_) {
+    // Safari privado / algunos WebViews embebidos pueden lanzar al escribir
+    // en localStorage. El modo demo es solo para pruebas locales, así que
+    // degradamos con silencio en vez de romper la app.
+  }
 }
 function ahora() {
   return new Date().toISOString();
@@ -32,8 +38,12 @@ export function getDemoUser() {
   }
 }
 export function setDemoUser(user) {
-  if (user) localStorage.setItem(CLAVE_AUTH, JSON.stringify(user));
-  else localStorage.removeItem(CLAVE_AUTH);
+  try {
+    if (user) localStorage.setItem(CLAVE_AUTH, JSON.stringify(user));
+    else localStorage.removeItem(CLAVE_AUTH);
+  } catch (_) {
+    // ver nota en guardar(): degradar con silencio, no romper la app.
+  }
 }
 
 /* ------------------------------------------------------------- usuario */
