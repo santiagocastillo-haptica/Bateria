@@ -318,10 +318,16 @@ p { line-height: 1.55; color: var(--negro-tinta); font-size: var(--fs-body); fon
 /* ---------- Modal ---------- */
 .modal-fondo {
   position: fixed; inset: 0; background: rgb(13 27 29 / .55);
-  display: flex; align-items: center; justify-content: center; padding: var(--space-4); z-index: 50;
+  display: flex; align-items: flex-start; justify-content: center; padding: var(--space-4); z-index: 50;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
-.modal { background: var(--blanco); border-radius: var(--radius-md); max-width: 520px; width: 100%; padding: var(--space-6); box-shadow: var(--shadow-raised); }
+/* margin: auto 0 centra el modal cuando cabe en pantalla; cuando el
+   contenido (pistas + teclado) es más alto que el viewport, el contenedor
+   ya es scrolleable (overflow-y arriba) en vez de recortar el teclado o el
+   botón de confirmar sin forma de llegar a ellos. */
+.modal { background: var(--blanco); border-radius: var(--radius-md); max-width: 520px; width: 100%; padding: var(--space-6); box-shadow: var(--shadow-raised); margin: auto 0; }
 .modal h2 { margin-top: 0; }
 
 /* ---------- Pasaporte ---------- */
