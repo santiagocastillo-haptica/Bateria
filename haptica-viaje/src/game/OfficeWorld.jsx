@@ -62,7 +62,16 @@ export default function OfficeWorld({
   }
 
   useEffect(() => {
+    function escribiendoEnCampo() {
+      const tag = document.activeElement?.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.isContentEditable;
+    }
     function down(e) {
+      // Nunca interceptar teclas mientras el jugador escribe en un campo de
+      // texto (ej. "Nombre completo"): sin esta guarda, "e" preventDefault()
+      // se come esa letra en CUALQUIER input enfocado en ese momento, no solo
+      // en el juego — un nombre con "e" (como "Kevin") pierde esa letra.
+      if (escribiendoEnCampo()) return;
       const k = e.key.toLowerCase();
       keys.current[k] = true;
       if (k === "e") {
@@ -72,6 +81,7 @@ export default function OfficeWorld({
       if (["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) e.preventDefault();
     }
     function up(e) {
+      if (escribiendoEnCampo()) return;
       keys.current[e.key.toLowerCase()] = false;
     }
     window.addEventListener("keydown", down);
